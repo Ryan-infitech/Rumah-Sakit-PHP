@@ -1,4 +1,5 @@
-<!-- indext.blade.php -->
+<!-- dokter.indext.blade.php -->
+ 
 @extends('layout.admin')
 
 @section('title', 'dokter')

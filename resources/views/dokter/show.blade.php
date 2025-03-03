@@ -1,3 +1,5 @@
+<!-- dokter.show.blade.php -->
+
 @extends('layout.admin')
 
 @section('title', 'Detail Dokter')

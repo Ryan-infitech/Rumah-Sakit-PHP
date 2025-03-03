@@ -36,7 +36,6 @@
                                 <button type="button" class="btn btn-danger btn-sm btn-delete">Hapus</button>
                             </form>
                         </td>
-                        @enddiv
                     </tr>
                     @endforeach
                     @include('sweetalert::alert')
