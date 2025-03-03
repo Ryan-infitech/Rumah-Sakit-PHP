@@ -33,18 +33,21 @@
 <body id="page-top">
     <!-- Page Wrapper -->
     <div id="wrapper">
-        <!-- Sidebar -->
-        <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
-        <a class="collapse-item" href="{{ route('poliklinik.index') }}">Data Poliklinik</a>
-        <a class="collapse-item" href="{{ route('dokter.index') }}">Data Dokter</a>
+
+            <!-- Sidebar -->
+            <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
+            <!-- Sidebar Brand -->
             <a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.html">
                 <div class="sidebar-brand-icon rotate-n-15">
                     <i class="fas fa-laugh-wink"></i>
                 </div>
                 <div class="sidebar-brand-text mx-3">SB Admin <sup>2</sup></div>
             </a>
+            
+            <!-- Divider -->
             <hr class="sidebar-divider my-0">
             
+            <!-- Nav Item - Dashboard -->
             <li class="nav-item">
                 <a class="nav-link" href="">
                     <i class="fas fa-fw fa-tachometer-alt"></i>
@@ -52,6 +55,24 @@
                 </a>
             </li>
             
+            <!-- Nav Item - Master Data Collapse Menu -->
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseData"
+                    aria-expanded="true" aria-controls="collapseData">
+                    <i class="fas fa-fw fa-database"></i>
+                    <span>Master Data</span>
+                </a>
+                <div id="collapseData" class="collapse" aria-labelledby="headingData" data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <h6 class="collapse-header">Data Management:</h6>
+                        <a class="collapse-item" href="{{ route('poliklinik.index') }}">Data Poliklinik</a>
+                        <a class="collapse-item" href="{{ route('dokter.index') }}">Data Dokter</a>
+                        <a class="collapse-item" href="{{ route('jadwalpoliklinik.index') }}">Data Jadwal Poliklinik</a>
+                    </div>
+                </div>
+            </li>
+            
+            <!-- Nav Item - Dokter -->
             <li class="nav-item">
                 <a class="nav-link" href="">
                     <i class="fas fa-fw fa-users"></i>
@@ -59,6 +80,7 @@
                 </a>
             </li>
 
+            <!-- Nav Item - Pendaftaran -->
             <li class="nav-item">
                 <a class="nav-link" href="">
                     <i class="fas fa-fw fa-calendar-plus"></i>
@@ -66,6 +88,7 @@
                 </a>
             </li>
 
+            <!-- Nav Item - Laporan Pendaftaran -->
             <li class="nav-item">
                 <a class="nav-link" href="">
                     <i class="fas fa-fw fa-table"></i>
@@ -73,7 +96,10 @@
                 </a>
             </li>
             
+            <!-- Divider -->
             <hr class="sidebar-divider d-none d-md-block">
+            
+            <!-- Sidebar Toggler (Sidebar) -->
             <div class="text-center d-none d-md-inline">
                 <button class="rounded-circle border-0" id="sidebarToggle"></button>
             </div>
@@ -95,8 +121,8 @@
                         <div class="topbar-divider d-none d-sm-block"></div>
                         <li class="nav-item dropdown no-arrow">
                             <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <span class="mr-2 d-none d-lg-inline text-gray-600 small">User</span>
-                                <img class="img-profile rounded-circle" src="" alt="">
+                                <span class="mr-2 d-none d-lg-inline text-gray-600 small"></span>
+                                <img class="img-profile rounded-circle" src="https://github.com/Ryan-infitech/Map-Informasi-Bencana/blob/main/readmemedia/rian%20septiawan.jpg?raw=true" alt="User">
                             </a>
                             <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">
                                 <a class="dropdown-item" href="">
