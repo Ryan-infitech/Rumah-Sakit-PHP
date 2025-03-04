@@ -39,17 +39,10 @@ Route::get('/jadwalpoliklinik/{id}/edit', [JadwalpoliklinikController::class, 'e
 Route::put('/jadwalpoliklinik/update/{id}', [JadwalpoliklinikController::class, 'update'])->name('jadwalpoliklinik.update');
 Route::delete('/jadwalpoliklinik/{id}', [JadwalpoliklinikController::class, 'destroy'])->name('jadwalpoliklinik.destroy');
 
-// Route untuk login
-Route::get('login', [LoginController::class, 'showLoginForm'])->name('login');
-Route::post('login', [LoginController::class, 'login']);
-
-Route::middleware(['redirect.if.authenticated'])->group(function () {
-    Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
-    // Tambahkan rute lain yang ingin Anda lindungi
-});
-
+// Login routes
 Route::middleware(['guest'])->group(function () {
     Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
-    Route::post('login', [LoginController::class, 'login']);
-    // Other public routes...
+    Route::post('/login', [LoginController::class, 'login']);
 });
+
+Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
