@@ -2,12 +2,12 @@
 <?php
 
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\DokterController;
 use App\Http\Controllers\JadwalpoliklinikController;
 use App\Http\Controllers\PasienController;
 use App\Http\Controllers\PetugasController;
 use App\Http\Controllers\PoliklinikController;
-use App\Models\jadwalpoliklinik;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -38,3 +38,18 @@ Route::post('/jadwalpoliklinik/add', [JadwalpoliklinikController::class, 'add'])
 Route::get('/jadwalpoliklinik/{id}/edit', [JadwalpoliklinikController::class, 'edit'])->name('jadwalpoliklinik.edit');
 Route::put('/jadwalpoliklinik/update/{id}', [JadwalpoliklinikController::class, 'update'])->name('jadwalpoliklinik.update');
 Route::delete('/jadwalpoliklinik/{id}', [JadwalpoliklinikController::class, 'destroy'])->name('jadwalpoliklinik.destroy');
+
+// Route untuk login
+Route::get('login', [LoginController::class, 'showLoginForm'])->name('login');
+Route::post('login', [LoginController::class, 'login']);
+
+Route::middleware(['redirect.if.authenticated'])->group(function () {
+    Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
+    // Tambahkan rute lain yang ingin Anda lindungi
+});
+
+Route::middleware(['guest'])->group(function () {
+    Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
+    Route::post('login', [LoginController::class, 'login']);
+    // Other public routes...
+});
