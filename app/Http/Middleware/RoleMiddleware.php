@@ -3,18 +3,22 @@
 namespace App\Http\Middleware;
 
 use Closure;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class RoleMiddleware
 {
-    public function handle(Request $request, Closure $next, $role)
+    public function handle($request, Closure $next, ...$roles)
     {
-        // Memeriksa apakah pengguna sudah login dan memiliki role yang sesuai
-        if (Auth::check() && Auth::user()->roles != $role) {
-            return redirect('/'); // Arahkan pengguna yang tidak sesuai peran ke halaman utama
+        if (!Auth::check()) {
+            return redirect('/login');
         }
 
-        return $next($request);
+        $user = Auth::user();
+        
+        if (in_array($user->roles, $roles)) {
+            return $next($request);
+        }
+
+        return redirect('/login')->with('error', 'Unauthorized access');
     }
 }
