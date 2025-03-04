@@ -1,3 +1,5 @@
+<!-- dashboardadmin.blade.php -->
+
 @extends('layout.admin')
 
 @section('content')
