@@ -69,5 +69,5 @@ Route::put('/user/{id}', [DatauserController::class, 'update'])->name('user.upda
 Route::delete('/user/{id}', [DatauserController::class, 'destroy'])->name('user.destroy');
 
 // Profile Routes
-Route::get('/profile', [ProfileController::class, 'index'])->name('user.profile');
-Route::put('/profile/update/{id}', [ProfileController::class, 'update'])->name('profile.update');
+Route::get('/profile', [ProfileController::class, 'index'])->name('profile.index');
+Route::put('/profile/{id}', [ProfileController::class, 'update'])->name('profile.update');
