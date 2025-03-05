@@ -20,6 +20,11 @@ use Illuminate\Support\Facades\Route;
 | contains the "web" middleware group. Now create something great!
 |
 */
+// Root route
+Route::get('/', function () {
+    return redirect()->route('login');
+});
+
 // dashboard
 Route::get('/dashboard-admin', [AdminController::class, 'index'])->name('dashboard-admin');
 Route::get('/dashboard-petugas', [PetugasController::class, 'index'])->name('dashboard-petugas');
