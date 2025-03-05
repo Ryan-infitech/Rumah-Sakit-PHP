@@ -201,36 +201,35 @@
             }
         }
 
-        // Show success message with SweetAlert if available
-        @if(session('success'))
+        // Initialize single document ready function
         document.addEventListener('DOMContentLoaded', function() {
-            Swal.fire({
-                icon: 'success',
-                title: 'Berhasil!',
-                text: '{{ session('success') }}',
-                confirmButtonText: 'OK'
-            });
-        });
-        @endif
-
-        // Show error message with SweetAlert if available
-        @if(session('error'))
-        document.addEventListener('DOMContentLoaded', function() {
-            Swal.fire({
-                icon: 'error',
-                title: 'Error!',
-                text: '{{ session('error') }}',
-                confirmButtonText: 'OK'
-            });
-        });
-        @endif
-
-        document.addEventListener('DOMContentLoaded', function() {
-            // Add form submission handler for debugging
+            // Handle form submission
             document.getElementById('loginForm').addEventListener('submit', function(e) {
                 console.log('Login form submitted');
                 // The form submission will proceed normally
             });
+            
+            // Handle success and error messages with Vanilla JS
+            const successMessage = "{{ session('success') }}";
+            const errorMessage = "{{ session('error') }}";
+            
+            if (successMessage) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Berhasil!',
+                    text: successMessage,
+                    confirmButtonText: 'OK'
+                });
+            }
+            
+            if (errorMessage) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error!',
+                    text: errorMessage,
+                    confirmButtonText: 'OK'
+                });
+            }
         });
     </script>
 </body>
