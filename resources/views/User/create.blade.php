@@ -3,12 +3,16 @@
 @section('title', 'Tambah User')
 
 @section('content')
+<!-- Hidden inputs for SweetAlert messages -->
+<input type="hidden" id="success-message" value="{{ session('success') }}">
+<input type="hidden" id="error-message" value="{{ session('error') }}">
+
 <div class="card shadow mb-4">
     <div class="card-header py-3">
         <h6 class="m-0 font-weight-bold text-primary">Tambah User Baru</h6>
     </div>
     <div class="card-body">
-        <form action="{{ route('user.add') }}" method="POST" enctype="multipart/form-data">
+        <form action="{{ route('user.add') }}" method="POST" enctype="multipart/form-data" class="user-form">
             @csrf
             <div class="row">
                 <div class="col-md-4 text-center">
@@ -75,3 +79,7 @@
 @endsection
 
 @include('sweetalert::alert')
+
+@push('scripts')
+<script src="{{ asset('js/sweetalert.js') }}"></script>
+@endpush

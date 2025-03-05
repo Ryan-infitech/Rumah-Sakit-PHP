@@ -3,17 +3,19 @@
     (Auth::user()->roles == 'pasien' ? 'layout.pasien' :
     (Auth::user()->roles == 'petugas' ? 'layout.petugas' : 'layout.petugas')))
 
-@extends('layout.admin')
-
-@section('title', 'Edit Data User')
+@section('title', 'Edit Profile')
 
 @section('content')
+<!-- Hidden inputs for SweetAlert messages -->
+<input type="hidden" id="success-message" value="{{ session('success') }}">
+<input type="hidden" id="error-message" value="{{ session('error') }}">
+
 <div class="card shadow mb-4">
     <div class="card-header py-3">
-        <h6 class="m-0 font-weight-bold text-primary">Edit User</h6>
+        <h6 class="m-0 font-weight-bold text-primary">Edit Profile</h6>
     </div>
     <div class="card-body">
-        <form action="{{ route('profile.update', Auth::id()) }}" method="POST" enctype="multipart/form-data">
+        <form action="{{ route('profile.update', Auth::id()) }}" method="POST" enctype="multipart/form-data" class="user-form">
             @csrf
             @method('PUT')
             <div class="row">
@@ -51,7 +53,7 @@
                     </div>
                     <div class="text-center">
                         <button type="submit" class="btn btn-primary">Update</button>
-                        <a href="{{ route('dashboard.' . Auth::user()->roles) }}" class="btn btn-secondary">Batal</a>
+                        <a href="{{ route('dashboard-' . Auth::user()->roles) }}" class="btn btn-secondary">Batal</a>
                     </div>
                 </div>
             </div>
@@ -70,5 +72,9 @@
     };
 </script>
 @endsection
+
+@push('scripts')
+<script src="{{ asset('js/sweetalert.js') }}"></script>
+@endpush
 
 @include('sweetalert::alert')

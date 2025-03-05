@@ -3,6 +3,10 @@
 @section('title', 'Data User')
 
 @section('content')
+<!-- Hidden inputs for SweetAlert messages -->
+<input type="hidden" id="success-message" value="{{ session('success') }}">
+<input type="hidden" id="error-message" value="{{ session('error') }}">
+
 <!-- Page Heading -->
 <h1 class="h3 mb-2 text-gray-800">Data User</h1>
 
@@ -56,9 +60,8 @@
         </div>
     </div>
 </div>
-
-<!-- Sertakan SweetAlert2 -->
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
-<!-- Sertakan file JavaScript khusus -->
-<script src="{{ asset('js/sweetalert.js') }}"></script>
 @endsection
+
+@push('scripts')
+<script src="{{ asset('js/sweetalert.js') }}"></script>
+@endpush
