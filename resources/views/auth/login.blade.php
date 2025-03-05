@@ -1,11 +1,15 @@
+<!-- login.blade.php -->
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
+    <title>Login Rumah Sakit</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <!-- SweetAlert2 CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <style>
         body {
             background-image: url('/rsaule.jpg');
@@ -116,31 +120,71 @@
         </div>
 
         <div class="card-body">
-            @if($errors->any())
-                <div class="alert alert-danger">
-                    <ul>
-                        @foreach($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
-                </div>
+            @if (session('success'))
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                {{ session('success') }}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
             @endif
-            <form method="POST" action="{{ route('login') }}">
+
+            @if (session('error'))
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                {{ session('error') }}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            @endif
+
+            @if ($errors->any())
+            <div class="alert alert-danger">
+                <ul>
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+                </ul>
+            </div>
+            @endif
+
+            <form method="POST" action="{{ route('login') }}" id="loginForm">
                 @csrf
                 <div class="form-group">
-                    <input type="text" class="form-control" id="username" name="username" placeholder="Username" required autofocus>
+                    <input type="text" class="form-control" id="username" name="username" placeholder="Email/Username" required autofocus value="{{ old('username') }}">
+                    @error('username')
+                        <span class="text-danger">{{ $message }}</span>
+                    @enderror
                 </div>
                 <div class="form-group password-container">
                     <input type="password" class="form-control" id="password" name="password" placeholder="Password" required>
                     <span class="password-toggle" id="toggle-icon" onclick="togglePassword()">
                         <i class="fa fa-eye"></i>
                     </span>
+                    @error('password')
+                        <span class="text-danger">{{ $message }}</span>
+                    @enderror
+                </div>
+                <div class="form-group">
+                    <div class="custom-control custom-checkbox small">
+                        <input type="checkbox" class="custom-control-input" id="remember" name="remember">
+                        <label class="custom-control-label" for="remember">Remember Me</label>
+                    </div>
                 </div>
                 <button type="submit" class="btn btn-primary">Login</button>
                 <a href="#" class="btn btn-info">Forgot Password?</a>
+
+                <div class="text-muted mt-3">
+                    Belum punya akun? <a href="{{ route('register') }}">Register</a>
+                </div>
             </form>
         </div>
     </div>
+
+    <!-- SweetAlert2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
         function togglePassword() {
@@ -156,6 +200,38 @@
                 toggleIcon.classList.add("fa-eye");
             }
         }
+
+        // Show success message with SweetAlert if available
+        @if(session('success'))
+        document.addEventListener('DOMContentLoaded', function() {
+            Swal.fire({
+                icon: 'success',
+                title: 'Berhasil!',
+                text: '{{ session('success') }}',
+                confirmButtonText: 'OK'
+            });
+        });
+        @endif
+
+        // Show error message with SweetAlert if available
+        @if(session('error'))
+        document.addEventListener('DOMContentLoaded', function() {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error!',
+                text: '{{ session('error') }}',
+                confirmButtonText: 'OK'
+            });
+        });
+        @endif
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add form submission handler for debugging
+            document.getElementById('loginForm').addEventListener('submit', function(e) {
+                console.log('Login form submitted');
+                // The form submission will proceed normally
+            });
+        });
     </script>
 </body>
 </html>
