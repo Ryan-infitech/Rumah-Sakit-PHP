@@ -49,7 +49,7 @@
             
             <!-- Nav Item - Dashboard -->
             <li class="nav-item">
-                <a class="nav-link" href="dashboard-admin">
+                <a class="nav-link" href="">
                     <i class="fas fa-fw fa-tachometer-alt"></i>
                     <span>Dashboard</span>
                 </a>
@@ -74,7 +74,7 @@
             
             <!-- Nav Item - Dokter -->
             <li class="nav-item">
-                <a class="nav-link" href="dokter">
+                <a class="nav-link" href="">
                     <i class="fas fa-fw fa-users"></i>
                     <span>Dokter</span>
                 </a>
@@ -130,10 +130,13 @@
                                     Profile
                                 </a>
                                 <div class="dropdown-divider"></div>
-                                <a href="#" class="dropdown-item" id="logout-menu-item">
-                                    <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
-                                    Logout
-                                </a>
+                                <form method="POST" action="{{ route('logout') }}" id="logout-form">
+                                    @csrf
+                                    <a href="#" class="dropdown-item" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                                        <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
+                                        Logout
+                                    </a>
+                                </form>
                             </div>
                         </li>
                     </ul>
@@ -179,11 +182,6 @@
         <i class="fas fa-angle-up"></i>
     </a>
 
-    <!-- Hidden Logout Form -->
-    <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
-        @csrf
-    </form>
-
     <!-- Logout Modal -->
     <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
@@ -216,31 +214,6 @@
     <script src="{{ asset('template/js/demo/datatables-demo.js') }}"></script>
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="{{ asset('js/sweetalert.js') }}"></script>
-    
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            document.getElementById('logout-menu-item').addEventListener('click', function(e) {
-                e.preventDefault();
-                
-                Swal.fire({
-                    title: 'Yakin untuk keluar?',
-                    text: 'Pilih "Logout" jika kamu yakin untuk meninggalkan halaman ini.',
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#3085d6',
-                    cancelButtonColor: '#d33',
-                    confirmButtonText: 'Logout',
-                    cancelButtonText: 'Batal'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        document.getElementById('logout-form').submit();
-                    }
-                });
-            });
-        });
-    </script>
-    
     @stack('scripts')
 </body>
 
