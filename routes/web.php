@@ -3,11 +3,13 @@
 
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\DatauserController;
 use App\Http\Controllers\DokterController;
 use App\Http\Controllers\JadwalpoliklinikController;
 use App\Http\Controllers\PasienController;
 use App\Http\Controllers\PetugasController;
 use App\Http\Controllers\PoliklinikController;
+use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -57,3 +59,15 @@ Route::middleware(['guest'])->group(function () {
 
 // Logout route
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+
+// User Routes
+Route::get('/user', [DatauserController::class, 'index'])->name('user.index');
+Route::get('/user/create', [DatauserController::class, 'create'])->name('user.create');
+Route::post('/user/add', [DatauserController::class, 'add'])->name('user.add');
+Route::get('/user/{id}/edit', [DatauserController::class, 'edit'])->name('user.edit');
+Route::put('/user/{id}', [DatauserController::class, 'update'])->name('user.update');
+Route::delete('/user/{id}', [DatauserController::class, 'destroy'])->name('user.destroy');
+
+// Profile Routes
+Route::get('/profile', [ProfileController::class, 'index'])->name('user.profile');
+Route::put('/profile/update/{id}', [ProfileController::class, 'update'])->name('profile.update');
