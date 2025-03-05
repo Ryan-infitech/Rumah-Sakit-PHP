@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -16,37 +15,37 @@ class UserSeeder extends Seeder
      */
     public function run()
     {
+        // Create admin user
         DB::table('user')->insert([
-            [
-                'nama_user' => 'Admin User',
-                'username' => 'admin',
-                'password' => Hash::make('12345678'),
-                'no_telepon' => '081234567890',
-                'foto_user' => null,
-                'roles' => 'admin',
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-            [
-                'nama_user' => 'Petugas User',
-                'username' => 'petugas',
-                'password' => Hash::make('12345678'),
-                'no_telepon' => '08123456792',
-                'foto_user' => null,
-                'roles' => 'petugas',
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-            [
-                'nama_user' => 'Pasien User',
-                'username' => 'pasien',
-                'password' => Hash::make('12345678'),
-                'no_telepon' => '081234567893',
-                'foto_user' => null,
-                'roles' => 'pasien',
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
+            'nama_user' => 'Administrator',
+            'username' => 'admin@rumahsakit.com',
+            'password' => Hash::make('admin123'),
+            'no_telepon' => '0812345678',
+            'roles' => 'admin',
+            'created_at' => now(),
+            'updated_at' => now()
+        ]);
+
+        // Create test petugas user
+        DB::table('user')->insert([
+            'nama_user' => 'Petugas Test',
+            'username' => 'petugas@rumahsakit.com',
+            'password' => Hash::make('petugas123'),
+            'no_telepon' => '0812345679',
+            'roles' => 'petugas',
+            'created_at' => now(),
+            'updated_at' => now()
+        ]);
+
+        // Create test pasien user
+        DB::table('user')->insert([
+            'nama_user' => 'Pasien Test',
+            'username' => 'pasien@rumahsakit.com',
+            'password' => Hash::make('pasien123'),
+            'no_telepon' => '0812345670',
+            'roles' => 'pasien',
+            'created_at' => now(),
+            'updated_at' => now()
         ]);
     }
 }
