@@ -1,3 +1,0 @@
-# This is a bash command to ensure the directory exists
-mkdir -p /c:/Users/ryans/Documents/PROJECT\ DEVELOP/A\ Github/Rumah-Sakit-PHP/public/img/
-# You'll need to manually add a default.jpg file to this directory
