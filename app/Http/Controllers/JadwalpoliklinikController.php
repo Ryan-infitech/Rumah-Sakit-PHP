@@ -4,8 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Models\dokter;
 use App\Models\jadwalpoliklinik;
+use App\Models\Antrian;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class JadwalpoliklinikController extends Controller
 {
@@ -22,7 +26,7 @@ class JadwalpoliklinikController extends Controller
         // Ambil parameter dari permintaan GET
         $start_date = $request->input('start_date');
         $end_date = $request->input('end_date');
-    
+        
         // Inisialisasi query untuk semua data jadwal poliklinik
         $query = JadwalPoliklinik::query();
 
@@ -55,7 +59,7 @@ class JadwalpoliklinikController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function add (Request $request)
+    public function add(Request $request)
     {
         $request->validate([
             'dokter_id' => 'required|exists:dokter,id',
@@ -66,7 +70,8 @@ class JadwalpoliklinikController extends Controller
         ]);
     
         $jadwalpoliklinik = new JadwalPoliklinik();
-        $jadwalpoliklinik->kode = 'JP-' . Str::random(8);
+        // Let the model generate the code with the new format
+        // $jadwalpoliklinik->kode = 'JP-' . Str::random(8);
         $jadwalpoliklinik->dokter_id = $request->dokter_id;
         $jadwalpoliklinik->poliklinik_id = Dokter::find($request->dokter_id)->poliklinik_id;
         $jadwalpoliklinik->tanggal_praktek = $request->tanggal_praktek;
@@ -141,9 +146,25 @@ class JadwalpoliklinikController extends Controller
      */
     public function destroy($id)
     {
-        $jadwalpoliklinik = JadwalPoliklinik::findOrFail($id);
-        $jadwalpoliklinik->delete();
-
-        return redirect()->route('jadwalpoliklinik.index')->with('success', 'Data berhasil dihapus');
+        try {
+            DB::beginTransaction();
+            
+            // Find the jadwal record
+            $jadwalpoliklinik = JadwalPoliklinik::findOrFail($id);
+            
+            // Log the related antrian records (for debugging)
+            $relatedAntrian = Antrian::where('jadwalpoliklinik_id', $id)->count();
+            Log::info("Deleting jadwal ID: {$id} with {$relatedAntrian} related antrian records");
+            
+            // Delete will cascade to related antrian records due to our updated foreign key constraint
+            $jadwalpoliklinik->delete();
+            
+            DB::commit();
+            return redirect()->route('jadwalpoliklinik.index')->with('success', 'Data berhasil dihapus');
+        } catch (\Exception $e) {
+            DB::rollback();
+            Log::error('Error deleting jadwalpoliklinik: ' . $e->getMessage());
+            return redirect()->route('jadwalpoliklinik.index')->with('error', 'Gagal menghapus data: ' . $e->getMessage());
+        }
     }
 }
