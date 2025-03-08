@@ -3,32 +3,27 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use App\Models\Datapasien;
 
 class PasienController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
+
     public function index()
     {
-        // Sample data for dashboard
-        $data = [
-            'nextAppointment' => '25 Juli 2023',
-            'totalVisits' => 5,
-            'upcomingAppointments' => [
-                [
-                    'tanggal' => '2023-07-25',
-                    'dokter' => 'Dr. Ahmad',
-                    'poli' => 'Umum',
-                    'status' => 'Terjadwal'
-                ],
-                [
-                    'tanggal' => '2023-08-01',
-                    'dokter' => 'Dr. Sarah',
-                    'poli' => 'Gigi',
-                    'status' => 'Menunggu'
-                ]
-            ]
-        ];
+        $user = Auth::user();
+        
+        // Get patient data for the current user if it exists
+        $dataPasien = null;
+        if ($user) {
+            $dataPasien = Datapasien::where('user_id', $user->id)->first();
+        }
 
-        return view('dashboardpasien', $data);
+        return view('dashboardpasien', compact('dataPasien'));
     }
 
     public function jadwalPeriksa()
