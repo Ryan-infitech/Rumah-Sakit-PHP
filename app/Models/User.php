@@ -101,4 +101,9 @@ class User extends Authenticatable
     {
         return 'remember_token';
     }
+
+    public function datapasien()
+        {
+            return $this->hasOne(Datapasien::class, 'user_id');
+        }
 }
