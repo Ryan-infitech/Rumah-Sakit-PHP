@@ -37,7 +37,7 @@
             <!-- Sidebar -->
             <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
             <!-- Sidebar Brand -->
-            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.html">
+            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="{{ route('dashboard-admin') }}">
                 <div class="sidebar-brand-icon rotate-n-15">
                     <i class="fas fa-laugh-wink"></i>
                 </div>
@@ -49,7 +49,7 @@
             
             <!-- Nav Item - Dashboard -->
             <li class="nav-item">
-                <a class="nav-link" href="">
+                <a class="nav-link" href="{{ route('dashboard-admin') }}">
                     <i class="fas fa-fw fa-tachometer-alt"></i>
                     <span>Dashboard</span>
                 </a>
@@ -65,9 +65,11 @@
                 <div id="collapseData" class="collapse" aria-labelledby="headingData" data-parent="#accordionSidebar">
                     <div class="bg-white py-2 collapse-inner rounded">
                         <h6 class="collapse-header">Data Management:</h6>
+                        <a class="collapse-item" href="{{ route('user.index') }}">Data User</a>
                         <a class="collapse-item" href="{{ route('poliklinik.index') }}">Data Poliklinik</a>
                         <a class="collapse-item" href="{{ route('dokter.index') }}">Data Dokter</a>
                         <a class="collapse-item" href="{{ route('jadwalpoliklinik.index') }}">Data Jadwal Poliklinik</a>
+                        <a class="collapse-item" href="{{ route('pasien.index') }}">Data Pasien</a>
                     </div>
                 </div>
             </li>
@@ -93,6 +95,22 @@
                 <a class="nav-link" href="">
                     <i class="fas fa-fw fa-table"></i>
                     <span>Laporan Pendaftaran</span>
+                </a>
+            </li>
+
+            <!-- Nav Item - Users -->
+            <li class="nav-item">
+                <a class="nav-link" href="{{ route('user.index') }}">
+                    <i class="fas fa-fw fa-users"></i>
+                    <span>Manajemen User</span>
+                </a>
+            </li>
+            
+            <!-- Nav Item - Patient Data -->
+            <li class="nav-item {{ request()->routeIs('pasien.index') ? 'active' : '' }}">
+                <a class="nav-link" href="{{ route('pasien.index') }}">
+                    <i class="fas fa-fw fa-hospital-user"></i>
+                    <span>Data Pasien</span>
                 </a>
             </li>
             
