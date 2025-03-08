@@ -10,6 +10,7 @@ use App\Http\Controllers\PasienController;
 use App\Http\Controllers\PetugasController;
 use App\Http\Controllers\PoliklinikController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\DatapasienController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -60,14 +61,36 @@ Route::middleware(['guest'])->group(function () {
 // Logout route
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
-// User Routes
-Route::get('/user', [DatauserController::class, 'index'])->name('user.index');
-Route::get('/user/create', [DatauserController::class, 'create'])->name('user.create');
-Route::post('/user/add', [DatauserController::class, 'add'])->name('user.add');
-Route::get('/user/{id}/edit', [DatauserController::class, 'edit'])->name('user.edit');
-Route::put('/user/{id}', [DatauserController::class, 'update'])->name('user.update');
-Route::delete('/user/{id}', [DatauserController::class, 'destroy'])->name('user.destroy');
+// User Routes with admin middleware
+Route::middleware(['auth', 'role:admin'])->group(function () {
+    Route::get('/user', [DatauserController::class, 'index'])->name('user.index');
+    Route::get('/user/create', [DatauserController::class, 'create'])->name('user.create');
+    Route::post('/user/add', [DatauserController::class, 'add'])->name('user.add');
+    Route::get('/user/{id}/edit', [DatauserController::class, 'edit'])->name('user.edit');
+    Route::put('/user/{id}', [DatauserController::class, 'update'])->name('user.update');
+    Route::delete('/user/{id}', [DatauserController::class, 'destroy'])->name('user.destroy');
+});
 
-// Profile Routes
-Route::get('/profile', [ProfileController::class, 'index'])->name('profile.index');
-Route::put('/profile/{id}', [ProfileController::class, 'update'])->name('profile.update');
+// Profile Routes - accessible by any authenticated user
+Route::middleware('auth')->group(function () {
+    Route::get('/profile', [ProfileController::class, 'index'])->name('profile.index');
+    Route::put('/profile/{id}', [ProfileController::class, 'update'])->name('profile.update');
+});
+
+// Patient Data Routes
+Route::middleware('auth')->group(function () {
+    // Routes accessible by admin, petugas, kepala_rs
+    Route::middleware(['role:admin,petugas,kepala_rs'])->group(function () {
+        Route::get('/datapasien', [DatapasienController::class, 'index'])->name('pasien.index');
+        Route::delete('/datapasien/{id}', [DatapasienController::class, 'destroy'])->name('pasien.destroy');
+    });
+    
+    // Routes for creating a new patient record (for first-time access)
+    Route::get('/datapribadi/create', [DatapasienController::class, 'create'])->name('pasien.create');
+    Route::post('/datapribadi', [DatapasienController::class, 'store'])->name('pasien.store');
+    
+    // Routes accessible by all authenticated users
+    Route::get('/datapribadi/{id}', [DatapasienController::class, 'show'])->name('pasien.show');
+    Route::get('/datapribadi/{id}/edit', [DatapasienController::class, 'edit'])->name('pasien.edit');
+    Route::put('/datapribadi/{id}', [DatapasienController::class, 'update'])->name('pasien.update');
+});
