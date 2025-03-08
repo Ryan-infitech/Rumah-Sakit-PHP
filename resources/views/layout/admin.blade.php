@@ -82,17 +82,9 @@
                 </a>
             </li>
 
-            <!-- Nav Item - Pendaftaran -->
-            <li class="nav-item">
-                <a class="nav-link" href="">
-                    <i class="fas fa-fw fa-calendar-plus"></i>
-                    <span>Pendaftaran</span>
-                </a>
-            </li>
-
-            <!-- Nav Item - Laporan Pendaftaran -->
-            <li class="nav-item">
-                <a class="nav-link" href="">
+            <!-- For admin, show only Laporan Pendaftaran -->
+            <li class="nav-item {{ request()->routeIs('antrian.index') ? 'active' : '' }}">
+                <a class="nav-link" href="{{ route('antrian.index') }}">
                     <i class="fas fa-fw fa-table"></i>
                     <span>Laporan Pendaftaran</span>
                 </a>

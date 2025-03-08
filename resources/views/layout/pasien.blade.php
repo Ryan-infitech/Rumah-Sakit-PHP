@@ -38,6 +38,22 @@
                 </a>
             </li>
 
+            <!-- Nav Item - Pendaftaran for patients -->
+            <li class="nav-item {{ request()->routeIs('Pendaftaran.index') ? 'active' : '' }}">
+                <a class="nav-link" href="{{ route('Pendaftaran.index') }}">
+                    <i class="fas fa-fw fa-calendar-plus"></i>
+                    <span>Pendaftaran</span>
+                </a>
+            </li>
+
+            <!-- Nav Item - Riwayat Pendaftaran for patients -->
+            <li class="nav-item {{ request()->routeIs('antrian.index2') ? 'active' : '' }}">
+                <a class="nav-link" href="{{ route('antrian.index2') }}">
+                    <i class="fas fa-fw fa-history"></i>
+                    <span>Riwayat Pendaftaran</span>
+                </a>
+            </li>
+
             <li class="nav-item {{ request()->is('jadwal*') ? 'active' : '' }}">
                 <a class="nav-link" href="#">
                     <i class="fas fa-fw fa-calendar-plus"></i>
