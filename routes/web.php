@@ -11,6 +11,9 @@ use App\Http\Controllers\PetugasController;
 use App\Http\Controllers\PoliklinikController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\DatapasienController;
+use App\Http\Controllers\PendaftaranController;
+use App\Http\Controllers\AntrianController;
+use App\Http\Controllers\RatingController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -93,4 +96,28 @@ Route::middleware('auth')->group(function () {
     Route::get('/datapribadi/{id}', [DatapasienController::class, 'show'])->name('pasien.show');
     Route::get('/datapribadi/{id}/edit', [DatapasienController::class, 'edit'])->name('pasien.edit');
     Route::put('/datapribadi/{id}', [DatapasienController::class, 'update'])->name('pasien.update');
+});
+
+// Pendaftaran and Antrian Routes with role middleware
+Route::middleware(['auth'])->group(function() {
+    // Pendaftaran Routes - accessible by patients only
+    Route::middleware(['role:pasien'])->group(function() {
+        Route::get('/Pendaftaran', [PendaftaranController::class, 'index'])->name('Pendaftaran.index');
+        Route::get('/antrian/riwayat', [AntrianController::class, 'index2'])->name('antrian.index2');
+        Route::get('/pendaftaran/riwayat/pdf', [AntrianController::class, 'generatePDF'])->name('riwayat.pasien');
+    });
+    
+    // Store route - accessible by all authenticated users
+    Route::post('/Pendaftaran/store', [PendaftaranController::class, 'store'])->name('Pendaftaran.store');
+    
+    // Laporan Pendaftaran - accessible by admin and petugas
+    Route::middleware(['role:admin,petugas'])->group(function() {
+        Route::get('/antrian', [AntrianController::class, 'index'])->name('antrian.index');
+    });
+    
+    // Generate PDF for specific appointment - accessible by all users
+    Route::get('/generate-antrian/{id}', [AntrianController::class, 'generateAntrian'])->name('generate.antrian');
+    
+    // Rating routes
+    Route::post('/rating', [RatingController::class, 'store'])->name('rating.store');
 });
