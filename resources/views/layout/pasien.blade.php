@@ -13,13 +13,16 @@
     <link href="{{ asset('template/css/sb-admin-2.min.css') }}" rel="stylesheet">
     <link href="{{ asset('template/vendor/datatables/dataTables.bootstrap4.min.css') }}" rel="stylesheet">
     <link href="{{ asset('css/custom.css') }}" rel="stylesheet">
+    
+    <!-- SweetAlert2 CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 </head>
 
 <body id="page-top">
     <div id="wrapper">
         <!-- Sidebar -->
         <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
-            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="">
+            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="{{ route('dashboard-pasien') }}">
                 <div class="sidebar-brand-icon">
                     <i class="fas fa-hospital-user"></i>
                 </div>
@@ -28,29 +31,36 @@
 
             <hr class="sidebar-divider my-0">
 
-            <li class="nav-item">
-                <a class="nav-link" href="">
+            <li class="nav-item {{ request()->routeIs('dashboard-pasien') ? 'active' : '' }}">
+                <a class="nav-link" href="{{ route('dashboard-pasien') }}">
                     <i class="fas fa-fw fa-home"></i>
                     <span>Dashboard</span>
                 </a>
             </li>
 
-            <li class="nav-item">
-                <a class="nav-link" href="">
+            <li class="nav-item {{ request()->is('jadwal*') ? 'active' : '' }}">
+                <a class="nav-link" href="#">
                     <i class="fas fa-fw fa-calendar-plus"></i>
                     <span>Jadwal Periksa</span>
                 </a>
             </li>
 
-            <li class="nav-item">
-                <a class="nav-link" href="">
+            <li class="nav-item {{ request()->is('riwayat*') ? 'active' : '' }}">
+                <a class="nav-link" href="#">
                     <i class="fas fa-fw fa-history"></i>
                     <span>Riwayat Periksa</span>
                 </a>
             </li>
 
-            <li class="nav-item">
-                <a class="nav-link" href="">
+            <li class="nav-item {{ request()->routeIs('pasien.show') ? 'active' : '' }}">
+                <a class="nav-link" href="{{ route('pasien.show', Auth::user()->datapasien ? Auth::user()->datapasien->id : 'create') }}">
+                    <i class="fas fa-fw fa-user-circle"></i>
+                    <span>Data Pribadi</span>
+                </a>
+            </li>
+
+            <li class="nav-item {{ request()->routeIs('profile.index') ? 'active' : '' }}">
+                <a class="nav-link" href="{{ route('profile.index') }}">
                     <i class="fas fa-fw fa-user"></i>
                     <span>Profil Saya</span>
                 </a>
@@ -72,12 +82,21 @@
 
                     <ul class="navbar-nav ml-auto">
                         <li class="nav-item dropdown no-arrow">
-                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown">
-                                <span class="mr-2 d-none d-lg-inline text-gray-600 small">{{ Auth::user()->name ?? 'Pasien' }}</span>
-                                <img class="img-profile rounded-circle" src="{{ asset('img/default-avatar.png') }}">
+                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <span class="mr-2 d-none d-lg-inline text-gray-600 small">{{ Auth::user()->nama_user }}</span>
+                                @if(Auth::user()->foto_user)
+                                    <img class="img-profile rounded-circle" src="{{ asset('storage/foto_user/' . Auth::user()->foto_user) }}" alt="{{ Auth::user()->nama_user }}">
+                                @else
+                                    <img class="img-profile rounded-circle" src="{{ asset('img/default.jpg') }}" alt="Default Profile">
+                                @endif
                             </a>
-                            <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in">
-                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#logoutModal">
+                            <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">
+                                <a class="dropdown-item" href="{{ route('profile.index') }}">
+                                    <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
+                                    Profile
+                                </a>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item" href="#" id="logout-menu-item">
                                     <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
                                     Logout
                                 </a>
@@ -87,6 +106,27 @@
                 </nav>
 
                 <div class="container-fluid">
+                    @if (session('success'))
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            {{ session('success') }}
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                    @endif
+
+                    @if (session('error'))
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            {{ session('error') }}
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                    @endif
+
+                    <input type="hidden" id="success-message" value="{{ session('success') }}">
+                    <input type="hidden" id="error-message" value="{{ session('error') }}">
+                    
                     @yield('content')
                 </div>
             </div>
@@ -94,22 +134,78 @@
             <footer class="sticky-footer bg-white">
                 <div class="container my-auto">
                     <div class="copyright text-center my-auto">
-                        <span>Copyright &copy; Rumah Sakit 2023</span>
+                        <span>Copyright &copy; Rumah Sakit Dr. Rian 2023</span>
                     </div>
                 </div>
             </footer>
         </div>
     </div>
 
-    <!-- Logout Modal-->
-    <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-hidden="true">
-        <!-- ... existing logout modal code ... -->
-    </div>
+    <a class="scroll-to-top rounded" href="#page-top">
+        <i class="fas fa-angle-up"></i>
+    </a>
+
+    <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+        @csrf
+    </form>
 
     <!-- Core Scripts -->
     <script src="{{ asset('template/vendor/jquery/jquery.min.js') }}"></script>
     <script src="{{ asset('template/vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
     <script src="{{ asset('template/vendor/jquery-easing/jquery.easing.min.js') }}"></script>
     <script src="{{ asset('template/js/sb-admin-2.min.js') }}"></script>
+    <script src="{{ asset('template/vendor/datatables/jquery.dataTables.min.js') }}"></script>
+    <script src="{{ asset('template/vendor/datatables/dataTables.bootstrap4.min.js') }}"></script>
+    
+    <!-- SweetAlert2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <script>
+        document.getElementById('logout-menu-item').addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            Swal.fire({
+                title: 'Yakin untuk keluar?',
+                text: 'Pilih "Logout" jika kamu yakin untuk meninggalkan halaman ini.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Logout',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById('logout-form').submit();
+                }
+            });
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const successMessage = document.getElementById('success-message');
+            const errorMessage = document.getElementById('error-message');
+
+            if (successMessage && successMessage.value) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Berhasil!',
+                    text: successMessage.value,
+                    timer: 3000,
+                    timerProgressBar: true
+                });
+            }
+
+            if (errorMessage && errorMessage.value) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Gagal!',
+                    text: errorMessage.value,
+                    timer: 3000,
+                    timerProgressBar: true
+                });
+            }
+        });
+    </script>
+    
+    @stack('scripts')
 </body>
 </html>
