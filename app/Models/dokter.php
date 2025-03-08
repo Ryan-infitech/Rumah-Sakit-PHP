@@ -18,4 +18,16 @@ class dokter extends Model
     {
         return $this->belongsTo(Poliklinik::class, 'poliklinik_id');
     }
+    
+    // Add relationship with ratings
+    public function ratings()
+    {
+        return $this->hasMany(Rating::class, 'dokter_id');
+    }
+    
+    // Get average rating for the doctor
+    public function getAverageRatingAttribute()
+    {
+        return $this->ratings()->avg('rating') ?: 0;
+    }
 }
