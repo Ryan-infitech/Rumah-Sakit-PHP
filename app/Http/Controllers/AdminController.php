@@ -7,8 +7,7 @@ use Illuminate\Support\Facades\Auth;
 
 class AdminController extends Controller
 {
-
-        /**
+    /**
      * Create a new controller instance.
      *
      * @return void
@@ -32,7 +31,9 @@ class AdminController extends Controller
      */
     public function index()
     {
-        return view('dashboardadmin');
+        // Changed from 'dashboardadmin' to make the title of the logged-in user visible
+        $user = Auth::user();
+        return view('dashboardadmin', compact('user'));
     }
 
     /**
