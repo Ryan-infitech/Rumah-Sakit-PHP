@@ -14,9 +14,9 @@ return new class extends Migration
     public function up()
     {
         Schema::table('antrian', function (Blueprint $table) {
-            $table->unsignedBigInteger('dokter_id')->nullable()->after('nama_dokter');
-            // Add foreign key constraint if needed
-            // $table->foreign('dokter_id')->references('id')->on('dokter')->onDelete('set null');
+            if (!Schema::hasColumn('antrian', 'waktu_selesai')) {
+                $table->timestamp('waktu_selesai')->nullable()->after('status');
+            }
         });
     }
 
@@ -28,9 +28,9 @@ return new class extends Migration
     public function down()
     {
         Schema::table('antrian', function (Blueprint $table) {
-            // Remove foreign key constraint if added
-            // $table->dropForeign(['dokter_id']);
-            $table->dropColumn('dokter_id');
+            if (Schema::hasColumn('antrian', 'waktu_selesai')) {
+                $table->dropColumn('waktu_selesai');
+            }
         });
     }
 };

@@ -21,11 +21,11 @@ return new class extends Migration
             $table->string('no_telepon'); // Menambahkan kolom no_telepon
             $table->string('foto_user')->nullable(); // Menambahkan kolom foto_user, nullable jika tidak diisi
             $table->enum('roles', ['admin', 'petugas', 'pasien']); // Menambahkan kolom roles dengan nilai enum
+            $table->rememberToken(); // Added remember_token
             $table->timestamps(); // Menambahkan kolom created_at dan updated_at
         });
     }
     
-
     /**
      * Reverse the migrations.
      *
