@@ -30,7 +30,9 @@ class Antrian extends Model
        'tanggal_reservasi',
        'scan_surat_rujukan',
        'user_id',
-       'dokter_id'  // Add this field
+       'dokter_id',
+       'status',
+       'waktu_selesai',
    ];
    
    public function jadwalpoliklinik()
@@ -56,5 +58,12 @@ class Antrian extends Model
    protected $casts = [
        'tanggal_berobat' => 'date',
        'tanggal_reservasi' => 'datetime',
+       'waktu_selesai' => 'datetime',
    ];
+
+   // Add accessor to capitalize status for display
+   public function getStatusAttribute($value)
+   {
+       return ucfirst($value ?? 'menunggu');
+   }
 }

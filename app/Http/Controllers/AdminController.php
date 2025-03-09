@@ -101,4 +101,37 @@ class AdminController extends Controller
     {
         //
     }
+
+    public function riwayatAntrian(Request $request)
+    {
+        // Get date from request or use today's date
+        $date = $request->date ? Carbon::parse($request->date)->format('Y-m-d') : Carbon::today()->format('Y-m-d');
+        
+        // Get patients for the selected date with any status
+        $riwayat = Antrian::whereDate('tanggal_berobat', $date)
+            ->orderBy('no_antrian', 'asc')
+            ->get()
+            ->map(function($item) {
+                return [
+                    'id' => $item->id,
+                    'no_antrian' => $item->no_antrian,
+                    'nama_pasien' => $item->nama_pasien,
+                    'poli' => $item->poliklinik,
+                    'dokter' => $item->nama_dokter,
+                    'waktu_selesai' => $item->updated_at->format('H:i:s'),
+                    'tanggal' => $item->tanggal_berobat->format('d/m/Y'),
+                    'status' => $item->status
+                ];
+            });
+
+        // Group by status for summary
+        $summary = [
+            'total' => $riwayat->count(),
+            'menunggu' => $riwayat->where('status', 'Menunggu')->count(),
+            'diproses' => $riwayat->where('status', 'Diproses')->count(),
+            'dilayani' => $riwayat->where('status', 'Dilayani')->count(),
+        ];
+
+        return view('admin.riwayat-antrian', compact('riwayat', 'date', 'summary'));
+    }
 }
