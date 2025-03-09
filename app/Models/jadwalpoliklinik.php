@@ -21,6 +21,13 @@ class jadwalpoliklinik extends Model
         'jumlah'
     ];
 
+    // Explicitly set timestamps to true (this is default, but let's be explicit)
+    public $timestamps = true;
+    
+    // Define the column names for created_at and updated_at if they're non-standard
+    const CREATED_AT = 'created_at';
+    const UPDATED_AT = 'updated_at';
+
     // Ensure code generation on creation with better format
     protected static function boot()
     {
