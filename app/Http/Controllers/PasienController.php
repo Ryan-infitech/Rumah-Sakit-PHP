@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Datapasien;
+use App\Models\Antrian;
+use App\Models\jadwalpoliklinik;
+use Carbon\Carbon;
 
 class PasienController extends Controller
 {
@@ -22,8 +25,56 @@ class PasienController extends Controller
         if ($user) {
             $dataPasien = Datapasien::where('user_id', $user->id)->first();
         }
+        
+        // Initialize dashboard data
+        $dashboardData = [
+            'totalKunjungan' => 0,
+            'totalResep' => 0,
+            'jadwalBerikutnya' => null,
+            'upcomingAppointments' => [],
+        ];
+        
+        // If patient data exists, fetch related information
+        if ($dataPasien) {
+            // Count total visits (completed appointments)
+            $dashboardData['totalKunjungan'] = Antrian::where('id_pasien', $dataPasien->id)
+                ->where('status', 'dilayani')
+                ->count();
+            
+            // Count total prescriptions (this is an example - adjust based on your database structure)
+            // Assuming prescriptions are related to completed appointments
+            $dashboardData['totalResep'] = Antrian::where('id_pasien', $dataPasien->id)
+                ->where('status', 'dilayani')
+                ->count();
+                
+            // Get next upcoming appointment
+            $nextAppointment = Antrian::where('id_pasien', $dataPasien->id)
+                ->whereIn('status', ['menunggu', 'diproses'])
+                ->orderBy('tanggal_berobat', 'asc')
+                ->first();
+                
+            $dashboardData['jadwalBerikutnya'] = $nextAppointment;
+            
+            // Get all upcoming appointments
+            $dashboardData['upcomingAppointments'] = Antrian::where('id_pasien', $dataPasien->id)
+                ->whereIn('status', ['menunggu', 'diproses'])
+                ->orderBy('tanggal_berobat', 'asc')
+                ->get();
+        }
+        
+        // Get available jadwal poliklinik for the next 7 days
+        $today = Carbon::today();
+        $nextWeek = Carbon::today()->addDays(7);
+        
+        $availableSchedules = jadwalpoliklinik::whereBetween('tanggal_praktek', [$today, $nextWeek])
+            ->where('jumlah', '>', 0)
+            ->with(['dokter', 'poliklinik'])
+            ->orderBy('tanggal_praktek', 'asc')
+            ->get();
+            
+        $dashboardData['availableSchedules'] = $availableSchedules;
 
-        return view('dashboardpasien', compact('dataPasien'));
+        return view('dashboardpasien', compact('dataPasien', 'dashboardData'));
     }
 
     public function jadwalPeriksa()
@@ -73,5 +124,45 @@ class PasienController extends Controller
         ];
 
         return view('pasien.profil', compact('profil'));
+    }
+
+    public function riwayatAntrian()
+    {
+        $userId = Auth::id();
+        
+        // Get current active appointments for this patient
+        $antrianAktif = Antrian::where('user_id', $userId)
+            ->whereIn('status', ['menunggu', 'diproses'])
+            ->orderBy('tanggal_berobat', 'desc')
+            ->get()
+            ->map(function($item) {
+                return [
+                    'id' => $item->id,
+                    'no_antrian' => $item->no_antrian,
+                    'poli' => $item->poliklinik,
+                    'dokter' => $item->nama_dokter,
+                    'tanggal' => $item->tanggal_berobat->format('d/m/Y'),
+                    'status' => $item->status
+                ];
+            });
+        
+        // Get appointment history for this patient
+        $riwayatAntrian = Antrian::where('user_id', $userId)
+            ->where('status', 'dilayani')
+            ->orderBy('tanggal_berobat', 'desc')
+            ->get()
+            ->map(function($item) {
+                return [
+                    'id' => $item->id,
+                    'no_antrian' => $item->no_antrian,
+                    'poli' => $item->poliklinik,
+                    'dokter' => $item->nama_dokter,
+                    'tanggal' => $item->tanggal_berobat->format('d/m/Y'),
+                    'waktu_selesai' => $item->updated_at->format('H:i:s'),
+                    'status' => $item->status
+                ];
+            });
+        
+        return view('pasien.riwayat-antrian', compact('antrianAktif', 'riwayatAntrian'));
     }
 }
