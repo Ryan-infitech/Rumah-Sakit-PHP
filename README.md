@@ -2,7 +2,7 @@
 
 <div align="center">
 
-<a href="#"><img src="/storage/app/public/readme/image.png" width="100%"></a>
+<a href="#"><img src="https://github.com/Ryan-infitech/Rumah-Sakit-PHP/blob/main/storage/readme/image.png?raw=true"></a>
 
 
 </div>
