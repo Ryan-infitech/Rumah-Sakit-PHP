@@ -32,6 +32,7 @@ class Antrian extends Model
        'user_id',
        'dokter_id',
        'status',
+       'waktu_mulai',
        'waktu_selesai',
    ];
    
@@ -55,9 +56,15 @@ class Antrian extends Model
        return $this->belongsTo(Datapasien::class, 'id_pasien');
    }
    
+   public function riwayatKunjungan()
+   {
+       return $this->hasOne(RiwayatKunjungan::class);
+   }
+   
    protected $casts = [
        'tanggal_berobat' => 'date',
        'tanggal_reservasi' => 'datetime',
+       'waktu_mulai' => 'datetime',
        'waktu_selesai' => 'datetime',
    ];
 

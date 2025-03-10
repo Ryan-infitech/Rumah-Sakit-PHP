@@ -13,6 +13,7 @@ use App\Http\Controllers\DatapasienController;
 use App\Http\Controllers\PendaftaranController;
 use App\Http\Controllers\AntrianController;
 use App\Http\Controllers\RatingController;
+use App\Http\Controllers\SystemMetricsController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -137,4 +138,10 @@ Route::middleware(['auth', 'role:petugas'])->group(function() {
 Route::middleware(['auth', 'role:admin'])->group(function() {
     // ...existing admin routes...
     Route::get('/admin/riwayat-antrian', [AdminController::class, 'riwayatAntrian'])->name('admin.riwayat-antrian');
+    
+    // New route for patient history
+    Route::get('/admin/riwayat-pasien', [AdminController::class, 'riwayatPasien'])->name('admin.riwayat-pasien');
+    Route::get('/admin/riwayat-pasien/{id}', [AdminController::class, 'detailRiwayatPasien'])->name('admin.riwayat-pasien.detail');
+    Route::get('/admin/riwayat-pasien-export', [AdminController::class, 'exportRiwayatPasien'])->name('admin.riwayat-pasien.export'); Route::get('/admin/system-metrics', [SystemMetricsController::class, 'getSystemMetrics'])->name('admin.system-metrics');
+
 });
