@@ -240,8 +240,8 @@
                 </div>
                 <div class="card-body">
                     <div class="text-center mb-3">
-                        <img class="img-fluid px-3 px-sm-4 mt-3 mb-4" style="width: 8rem;" 
-                            src="{{ asset('https://cdnl.iconscout.com/lottie/premium/thumb/hospital-building-animation-download-in-lottie-json-gif-static-svg-file-formats--patient-room-emergency-office-medical-and-healthy-pack-healthcare-animations-4709608.gif') }}" alt="Hospital Logo">
+                        <img class="img-fluid px-3 px-sm-4 mt-3 mb-4" style="width: 10rem;" 
+                            src="{{ asset('https://cdnl.iconscout.com/lottie/premium/thumb/hospital-building-animation-download-in-lottie-json-gif-static-svg-file-formats--patient-room-emergency-office-medical-and-healthy-pack-healthcare-animations-4709608.gif') }}" alt="Hospital Logo" width="150%">
                     </div>
                     <div class="mb-2">
                         <span class="font-weight-bold">Jam Sistem:</span> 
