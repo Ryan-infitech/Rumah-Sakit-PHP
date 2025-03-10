@@ -103,8 +103,11 @@
 </head>
 <body>
     <div class="card">
-        <div class="card-header">Rumah Sakit <br>
-            <div class="doctor-name">Registrasi</div>
+        <div class="card-header">
+        <img src="https://cdnl.iconscout.com/lottie/premium/thumb/hospital-building-animation-download-in-lottie-json-gif-static-svg-file-formats--patient-room-emergency-office-medical-and-healthy-pack-healthcare-animations-4709608.gif" alt="logo rumah sakit" width="50%">
+        <br>    
+        Rumah Sakit <br>
+            <div class="doctor-name">Dr. Rian</div>
         </div>
 
         <div class="card-body">
