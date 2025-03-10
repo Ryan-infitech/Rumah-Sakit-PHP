@@ -8,7 +8,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="">
     <meta name="author" content="">
-    <title>@yield('title')</title>
+    <title>Dashboard Admin</title>
 
     <!-- Custom fonts for this template -->
     <link href="{{ asset('template/vendor/fontawesome-free/css/all.min.css') }}" rel="stylesheet">
@@ -34,68 +34,57 @@
     <!-- Page Wrapper -->
     <div id="wrapper">
 
-            <!-- Sidebar -->
-            <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
+        <!-- Sidebar -->
+        <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
             <!-- Sidebar Brand -->
             <a class="sidebar-brand d-flex align-items-center justify-content-center" href="{{ route('dashboard-admin') }}">
-                <div class="sidebar-brand-icon rotate-n-15">
-                    <i class="fas fa-laugh-wink"></i>
+                <div class="sidebar-brand-icon">
+                    <i class="fas fa-hospital-alt"></i>
                 </div>
-                <div class="sidebar-brand-text mx-3">SB Admin <sup>2</sup></div>
+                <div class="sidebar-brand-text mx-3">Admin Portal</div>
             </a>
             
             <!-- Divider -->
             <hr class="sidebar-divider my-0">
             
             <!-- Nav Item - Dashboard -->
-            <li class="nav-item">
+            <li class="nav-item {{ request()->routeIs('dashboard-admin') ? 'active' : '' }}">
                 <a class="nav-link" href="{{ route('dashboard-admin') }}">
                     <i class="fas fa-fw fa-tachometer-alt"></i>
                     <span>Dashboard</span>
                 </a>
             </li>
             
-            <!-- Nav Item - Master Data Collapse Menu -->
-            <li class="nav-item">
-                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseData"
-                    aria-expanded="true" aria-controls="collapseData">
-                    <i class="fas fa-fw fa-database"></i>
-                    <span>Master Data</span>
-                </a>
-                <div id="collapseData" class="collapse" aria-labelledby="headingData" data-parent="#accordionSidebar">
-                    <div class="bg-white py-2 collapse-inner rounded">
-                        <h6 class="collapse-header">Data Management:</h6>
-                        <a class="collapse-item" href="{{ route('user.index') }}">Data User</a>
-                        <a class="collapse-item" href="{{ route('poliklinik.index') }}">Data Poliklinik</a>
-                        <a class="collapse-item" href="{{ route('dokter.index') }}">Data Dokter</a>
-                        <a class="collapse-item" href="{{ route('jadwalpoliklinik.index') }}">Data Jadwal Poliklinik</a>
-                        <a class="collapse-item" href="{{ route('pasien.index') }}">Data Pasien</a>
-                    </div>
-                </div>
-            </li>
+            <!-- Divider -->
+            <hr class="sidebar-divider">
             
-            <!-- Nav Item - Dokter -->
-            <li class="nav-item">
-                <a class="nav-link" href="">
-                    <i class="fas fa-fw fa-users"></i>
-                    <span>Dokter</span>
-                </a>
-            </li>
-
-            <!-- For admin, show only Laporan Pendaftaran -->
-            <li class="nav-item {{ request()->routeIs('antrian.index') ? 'active' : '' }}">
-                <a class="nav-link" href="{{ route('antrian.index') }}">
-                    <i class="fas fa-fw fa-table"></i>
-                    <span>Laporan Pendaftaran</span>
-                </a>
-            </li>
-
-            <!-- Nav Item - Users -->
-            <li class="nav-item">
+            <!-- Heading -->
+            <div class="sidebar-heading">
+                Master Data
+            </div>
+            
+            <!-- Nav Item - User Management -->
+            <li class="nav-item {{ request()->routeIs('user.*') ? 'active' : '' }}">
                 <a class="nav-link" href="{{ route('user.index') }}">
-                    <i class="fas fa-fw fa-users"></i>
+                    <i class="fas fa-fw fa-users-cog"></i>
                     <span>Manajemen User</span>
                 </a>
+            </li>
+            
+            <!-- Nav Item - Clinics & Doctors -->
+            <li class="nav-item {{ request()->routeIs('poliklinik.*') || request()->routeIs('dokter.*') || request()->routeIs('jadwalpoliklinik.*') ? 'active' : '' }}">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseServices"
+                    aria-expanded="true" aria-controls="collapseServices">
+                    <i class="fas fa-fw fa-stethoscope"></i>
+                    <span>Layanan Medis</span>
+                </a>
+                <div id="collapseServices" class="collapse" aria-labelledby="headingServices" data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <a class="collapse-item {{ request()->routeIs('poliklinik.*') ? 'active' : '' }}" href="{{ route('poliklinik.index') }}">Poliklinik</a>
+                        <a class="collapse-item {{ request()->routeIs('dokter.*') ? 'active' : '' }}" href="{{ route('dokter.index') }}">Dokter</a>
+                        <a class="collapse-item {{ request()->routeIs('jadwalpoliklinik.*') ? 'active' : '' }}" href="{{ route('jadwalpoliklinik.index') }}">Jadwal Poliklinik</a>
+                    </div>
+                </div>
             </li>
             
             <!-- Nav Item - Patient Data -->
@@ -104,6 +93,32 @@
                     <i class="fas fa-fw fa-hospital-user"></i>
                     <span>Data Pasien</span>
                 </a>
+            </li>
+            
+            <!-- Divider -->
+            <hr class="sidebar-divider">
+            
+            <!-- Heading -->
+            <div class="sidebar-heading">
+                Laporan
+            </div>
+            
+            <!-- Nav Item - Queue Reports -->
+            <li class="nav-item {{ request()->routeIs('antrian.index') || request()->routeIs('admin.riwayat-antrian') || request()->routeIs('admin.riwayat-pasien') ? 'active' : '' }}">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseReports"
+                    aria-expanded="{{ request()->routeIs('antrian.index') || request()->routeIs('admin.riwayat-antrian') || request()->routeIs('admin.riwayat-pasien') ? 'true' : 'false' }}" 
+                    aria-controls="collapseReports">
+                    <i class="fas fa-fw fa-chart-line"></i>
+                    <span>Laporan</span>
+                </a>
+                <div id="collapseReports" class="collapse {{ request()->routeIs('antrian.index') || request()->routeIs('admin.riwayat-antrian') || request()->routeIs('admin.riwayat-pasien') ? 'show' : '' }}" 
+                    aria-labelledby="headingReports" data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <a class="collapse-item {{ request()->routeIs('antrian.index') ? 'active' : '' }}" href="{{ route('antrian.index') }}">Pendaftaran Harian</a>
+                        <a class="collapse-item {{ request()->routeIs('admin.riwayat-antrian') ? 'active' : '' }}" href="{{ route('admin.riwayat-antrian') }}">Riwayat Kunjungan</a>
+                        <a class="collapse-item {{ request()->routeIs('admin.riwayat-pasien') ? 'active' : '' }}" href="{{ route('admin.riwayat-pasien') }}">Data Histori Pasien</a>
+                    </div>
+                </div>
             </li>
             
             <!-- Divider -->
@@ -118,15 +133,18 @@
 
         <!-- Content Wrapper -->
         <div id="content-wrapper" class="d-flex flex-column">
+            <!-- Main Content -->
             <div id="content">
                 <!-- Topbar -->
                 <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
+                    <!-- Sidebar Toggle (Topbar) -->
                     <form class="form-inline">
                         <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
                             <i class="fa fa-bars"></i>
                         </button>
                     </form>
                     
+                    <!-- Topbar Navbar -->
                     <ul class="navbar-nav ml-auto">
                         <div class="topbar-divider d-none d-sm-block"></div>
                         <li class="nav-item dropdown no-arrow">
@@ -154,6 +172,7 @@
                 </nav>
                 <!-- End of Topbar -->
 
+                <!-- Begin Page Content -->
                 <div class="container-fluid">
                     @if (session('success'))
                         <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -175,7 +194,9 @@
 
                     @yield('content')
                 </div>
+                <!-- /.container-fluid -->
             </div>
+            <!-- End of Main Content -->
             
             <!-- Footer -->
             <footer class="sticky-footer bg-white">
@@ -185,8 +206,11 @@
                     </div>
                 </div>
             </footer>
+            <!-- End of Footer -->
         </div>
+        <!-- End of Content Wrapper -->
     </div>
+    <!-- End of Page Wrapper -->
 
     <!-- Scroll to Top Button-->
     <a class="scroll-to-top rounded" href="#page-top">
@@ -206,7 +230,7 @@
                 <div class="modal-body">Pilih "Logout" jika kamu yakin untuk meninggalkan halaman ini.</div>
                 <div class="modal-footer">
                     <button class="btn btn-secondary" type="button" data-dismiss="modal">Batal</button>
-                    <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-inline">
+                    <form id="logout-form-modal" action="{{ route('logout') }}" method="POST" class="d-inline">
                         @csrf
                         <button type="submit" class="btn btn-primary">Logout</button>
                     </form>
@@ -227,9 +251,11 @@
     <script src="{{ asset('template/js/sb-admin-2.min.js') }}"></script>
     <script src="{{ asset('template/vendor/datatables/jquery.dataTables.min.js') }}"></script>
     <script src="{{ asset('template/vendor/datatables/dataTables.bootstrap4.min.js') }}"></script>
-    <script src="{{ asset('template/js/demo/datatables-demo.js') }}"></script>
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <!-- Custom JavaScript to fix admin interface issues -->
+    <script src="{{ asset('js/custom-admin.js') }}"></script>
     
     <script>
         // Handle logout with SweetAlert confirmation
