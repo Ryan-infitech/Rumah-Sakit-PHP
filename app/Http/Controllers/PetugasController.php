@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Datapasien;
 use App\Models\Antrian;
 use App\Models\Jadwalpoliklinik;
+use App\Models\RiwayatKunjungan;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -175,21 +176,63 @@ class PetugasController extends Controller
 
     public function prosesAntrian($id)
     {
-        $antrian = Antrian::findOrFail($id);
-        $antrian->status = 'diproses';
-        $antrian->save();
-        
-        return redirect()->back()->with('success', 'Pasien sedang diproses');
+        try {
+            DB::beginTransaction();
+            
+            $antrian = Antrian::findOrFail($id);
+            $antrian->status = 'diproses';
+            $antrian->waktu_mulai = now(); // Record the time when processing starts
+            $antrian->save();
+            
+            DB::commit();
+            
+            return redirect()->back()->with('success', 'Pasien sedang diproses');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->back()->with('error', 'Gagal memproses antrian: ' . $e->getMessage());
+        }
     }
     
     public function selesaiAntrian($id)
     {
-        $antrian = Antrian::findOrFail($id);
-        $antrian->status = 'dilayani';
-        $antrian->waktu_selesai = now(); // Save the current time
-        $antrian->save();
-        
-        return redirect()->back()->with('success', 'Pasien telah selesai dilayani');
+        try {
+            DB::beginTransaction();
+            
+            $antrian = Antrian::findOrFail($id);
+            $antrian->status = 'dilayani';
+            $antrian->waktu_selesai = now(); // Record time when processing ends
+            $antrian->save();
+            
+            // Create a visit history record
+            $waktuMulai = $antrian->waktu_mulai ?? $antrian->created_at; // Use recorded start time or fallback
+            $waktuSelesai = $antrian->waktu_selesai;
+            $durasiPelayanan = $waktuMulai->diffInMinutes($waktuSelesai);
+            
+            RiwayatKunjungan::create([
+                'antrian_id' => $antrian->id,
+                'pasien_id' => $antrian->id_pasien,
+                'dokter_id' => $antrian->dokter_id,
+                'poliklinik_id' => $antrian->jadwalpoliklinik ? $antrian->jadwalpoliklinik->poliklinik_id : null,
+                'kode_kunjungan' => RiwayatKunjungan::generateKodeKunjungan(),
+                'no_antrian' => $antrian->no_antrian,
+                'nama_pasien' => $antrian->nama_pasien,
+                'nama_dokter' => $antrian->nama_dokter,
+                'poliklinik' => $antrian->poliklinik,
+                'tanggal_kunjungan' => $antrian->tanggal_berobat,
+                'waktu_mulai' => $waktuMulai,
+                'waktu_selesai' => $waktuSelesai,
+                'durasi_pelayanan' => $durasiPelayanan,
+                'status' => 'dilayani',
+                'penjamin' => $antrian->penjamin
+            ]);
+            
+            DB::commit();
+            
+            return redirect()->back()->with('success', 'Pasien telah selesai dilayani dan riwayat kunjungan telah dicatat');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->back()->with('error', 'Gagal menyelesaikan antrian: ' . $e->getMessage());
+        }
     }
 
     /**
