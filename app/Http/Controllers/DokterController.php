@@ -5,8 +5,10 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Dokter;
 use App\Models\Poliklinik;
+use App\Models\Rating;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 
 class DokterController extends Controller
 {
@@ -17,9 +19,18 @@ class DokterController extends Controller
      */
     public function index()
     {
-        $dokter = Dokter::latest()->get();
+        // Get all doctors with their poliklinik relationship
+        $dokter = Dokter::with('poliklinik')->latest()->get();
+        
+        // Get average ratings for all doctors
+        $dokterRatings = Rating::select('dokter_id', DB::raw('AVG(rating) as average_rating'))
+            ->groupBy('dokter_id')
+            ->pluck('average_rating', 'dokter_id')
+            ->toArray();
+        
         return view('dokter.index', [
-            'dokter' => $dokter
+            'dokter' => $dokter,
+            'dokterRatings' => $dokterRatings
         ]);
     }
 
@@ -80,8 +91,18 @@ class DokterController extends Controller
      */
     public function show($id)
     {
-        $dokter = Dokter::find($id);
-        return view('dokter.show', compact('dokter'));
+        $dokter = Dokter::with('poliklinik')->findOrFail($id);
+        
+        // Get average rating for this doctor
+        $averageRating = Rating::where('dokter_id', $id)->avg('rating') ?: 0;
+        
+        // Get all ratings for this doctor with user information
+        $ratings = Rating::with('user')
+            ->where('dokter_id', $id)
+            ->latest()
+            ->get();
+        
+        return view('dokter.show', compact('dokter', 'averageRating', 'ratings'));
     }
 
     /**
