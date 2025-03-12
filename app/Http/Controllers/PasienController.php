@@ -7,6 +7,10 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\Datapasien;
 use App\Models\Antrian;
 use App\Models\jadwalpoliklinik;
+use App\Models\RiwayatKunjungan;
+use App\Models\Dokter;
+use App\Models\Poliklinik;
+use App\Models\Rating; // Add this import
 use Carbon\Carbon;
 
 class PasienController extends Controller
@@ -79,38 +83,53 @@ class PasienController extends Controller
 
     public function jadwalPeriksa()
     {
-        $jadwal = [
-            'poliklinik' => ['Umum', 'Gigi', 'Anak', 'THT'],
-            'dokter' => [
-                'Dr. Ahmad',
-                'Dr. Sarah',
-                'Dr. John'
-            ]
-        ];
-
-        return view('pasien.jadwal-periksa', $jadwal);
+        $user = Auth::user();
+        $datapasien = Datapasien::where('user_id', $user->id)->first();
+        
+        // Get available schedule for the next 7 days
+        $today = Carbon::today();
+        $nextWeek = Carbon::today()->addDays(7);
+        
+        $jadwalPoliklinik = jadwalpoliklinik::whereBetween('tanggal_praktek', [$today, $nextWeek])
+            ->where('jumlah', '>', 0)
+            ->with(['dokter', 'poliklinik'])
+            ->orderBy('tanggal_praktek', 'asc')
+            ->get();
+            
+        $dokters = Dokter::with('poliklinik')->get();
+        $polikliniks = Poliklinik::all();
+        
+        return view('pasien.jadwal-periksa', compact('jadwalPoliklinik', 'dokters', 'polikliniks'));
     }
 
     public function riwayatPeriksa()
     {
-        $riwayat = [
-            [
-                'tanggal' => '2023-06-20',
-                'dokter' => 'Dr. Ahmad',
-                'poli' => 'Umum',
-                'diagnosis' => 'Flu dan Batuk',
-                'resep' => 'Paracetamol, Amoxilin'
-            ],
-            [
-                'tanggal' => '2023-05-15',
-                'dokter' => 'Dr. Sarah',
-                'poli' => 'Gigi',
-                'diagnosis' => 'Gigi Berlubang',
-                'resep' => 'Antibiotik'
-            ]
-        ];
-
-        return view('pasien.riwayat-periksa', compact('riwayat'));
+        $user = Auth::user();
+        $datapasien = Datapasien::where('user_id', $user->id)->first();
+        
+        if (!$datapasien) {
+            return redirect()->route('pasien.create')->with('error', 'Harap lengkapi data pasien terlebih dahulu');
+        }
+        
+        // Get all completed appointments for this patient
+        $riwayat = Antrian::where('id_pasien', $datapasien->id)
+            ->where('status', 'dilayani')
+            ->orderBy('tanggal_berobat', 'desc')
+            ->get();
+        
+        // Check for ratings and attach to riwayat
+        foreach ($riwayat as $item) {
+            $item->rating = Rating::where('dokter_id', $item->dokter_id)
+                ->where('user_id', $user->id)
+                ->first();
+        }
+        
+        // Get associated medical records if any
+        $riwayatKunjungan = RiwayatKunjungan::where('pasien_id', $datapasien->id)
+            ->orderBy('tanggal_kunjungan', 'desc')
+            ->get();
+            
+        return view('pasien.riwayat-periksa', compact('riwayat', 'riwayatKunjungan'));
     }
 
     public function profil()

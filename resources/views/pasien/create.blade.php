@@ -1,4 +1,7 @@
-@extends(Auth::user()->roles == 'pasien' ? 'layout.pasien' : 'layout.admin')
+@extends(
+    Auth::user()->roles == 'admin' ? 'layout.admin' :
+    (Auth::user()->roles == 'petugas' ? 'layout.petugas' : 'layout.pasien')
+)
 
 @section('title', 'Tambah Data Pasien')
 
@@ -10,6 +13,22 @@
     <div class="card-body">
         <form action="{{ route('pasien.store') }}" method="POST" enctype="multipart/form-data">
             @csrf
+            
+            @if(in_array(Auth::user()->roles, ['admin', 'petugas']) && isset($pasienUsers) && count($pasienUsers) > 0)
+            <div class="form-group">
+                <label for="user_id">Pilih User Pasien</label>
+                <select name="user_id" id="user_id" class="form-control @error('user_id') is-invalid @enderror">
+                    <option value="">-- Pilih User --</option>
+                    @foreach($pasienUsers as $pasienUser)
+                        <option value="{{ $pasienUser->id }}">{{ $pasienUser->nama_user }} ({{ $pasienUser->username }})</option>
+                    @endforeach
+                </select>
+                @error('user_id')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+            </div>
+            @endif
+
             <div class="form-group">
                 <label for="nama_pasien">Nama Pasien</label>
                 <input type="text" name="nama_pasien" id="nama_pasien" class="form-control @error('nama_pasien') is-invalid @enderror" value="{{ old('nama_pasien', $user->nama_user) }}">
@@ -114,9 +133,34 @@
             </div>
             <div class="text-center">
                 <button type="submit" class="btn btn-primary">Simpan</button>
-                <a href="{{ route('dashboard-pasien') }}" class="btn btn-secondary">Kembali</a>
+                @if(in_array(Auth::user()->roles, ['admin', 'petugas']))
+                    <a href="{{ route('pasien.index') }}" class="btn btn-secondary">Kembali</a>
+                @else
+                    <a href="{{ route('dashboard-pasien') }}" class="btn btn-secondary">Kembali</a>
+                @endif
             </div>
         </form>
     </div>
 </div>
+
+@if(in_array(Auth::user()->roles, ['admin', 'petugas']))
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const userSelect = document.getElementById('user_id');
+        if (userSelect) {
+            userSelect.addEventListener('change', function() {
+                if (this.value) {
+                    // You can add AJAX call here to fetch user details if needed
+                    // For now we'll leave it empty
+                } else {
+                    // Reset form fields to default
+                    document.getElementById('nama_pasien').value = '{{ $user->nama_user }}';
+                    document.getElementById('email').value = '{{ $user->username }}';
+                    document.getElementById('no_telp').value = '{{ $user->no_telepon }}';
+                }
+            });
+        }
+    });
+</script>
+@endif
 @endsection

@@ -54,16 +54,16 @@
                 </a>
             </li>
 
-            <li class="nav-item {{ request()->is('jadwal*') ? 'active' : '' }}">
-                <a class="nav-link" href="#">
-                    <i class="fas fa-fw fa-calendar-plus"></i>
+            <li class="nav-item {{ request()->routeIs('pasien.jadwal-periksa') ? 'active' : '' }}">
+                <a class="nav-link" href="{{ route('pasien.jadwal-periksa') }}">
+                    <i class="fas fa-fw fa-calendar-alt"></i>
                     <span>Jadwal Periksa</span>
                 </a>
             </li>
 
-            <li class="nav-item {{ request()->is('riwayat*') ? 'active' : '' }}">
-                <a class="nav-link" href="#">
-                    <i class="fas fa-fw fa-history"></i>
+            <li class="nav-item {{ request()->routeIs('pasien.riwayat-periksa') ? 'active' : '' }}">
+                <a class="nav-link" href="{{ route('pasien.riwayat-periksa') }}">
+                    <i class="fas fa-fw fa-file-medical"></i>
                     <span>Riwayat Periksa</span>
                 </a>
             </li>
