@@ -13,6 +13,7 @@ return new class extends Migration
      */
     public function up()
     {
+        // Create riwayat_kunjungan table
         Schema::create('riwayat_kunjungan', function (Blueprint $table) {
             $table->id();
             $table->foreignId('antrian_id')->nullable()->constrained('antrian')->onDelete('set null');
@@ -33,6 +34,19 @@ return new class extends Migration
             $table->text('catatan')->nullable();
             $table->timestamps();
         });
+
+        // Create ratings table
+        Schema::create('ratings', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('dokter_id')->constrained('dokter')->onDelete('cascade');
+            $table->foreignId('user_id')->constrained('user')->onDelete('cascade');
+            $table->decimal('rating', 3, 1); // Store ratings with one decimal place
+            $table->text('review')->nullable();
+            $table->timestamps();
+            
+            // Ensure a user can only rate a doctor once
+            $table->unique(['dokter_id', 'user_id']);
+        });
     }
 
     /**
@@ -42,6 +56,7 @@ return new class extends Migration
      */
     public function down()
     {
+        Schema::dropIfExists('ratings');
         Schema::dropIfExists('riwayat_kunjungan');
     }
 };

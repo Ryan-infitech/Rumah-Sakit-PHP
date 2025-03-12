@@ -18,14 +18,20 @@ return new class extends Migration
             $table->string('kode')->unique();
             $table->foreignId('dokter_id')->constrained('dokter');
             $table->foreignId('poliklinik_id')->references('poliklinik_id')->on('dokter');
-            $table->date('tanggal_praktek');
+            $table->date('tanggal_praktek')->nullable();
+            $table->string('hari')->nullable();
+            $table->date('tanggal_mulai')->nullable();
+            $table->date('tanggal_selesai')->nullable();
             $table->time('jam_mulai');
             $table->time('jam_selesai');
             $table->integer('jumlah');
+            $table->enum('tipe_jadwal', ['harian', 'mingguan'])->default('harian');
+            $table->boolean('is_active')->default(1);
+            $table->json('hari_dalam_minggu')->nullable();
             $table->timestamps();
         });
     }
-    
+
     /**
      * Reverse the migrations.
      *
@@ -34,5 +40,5 @@ return new class extends Migration
     public function down()
     {
         Schema::dropIfExists('jadwalpoliklinik');
-    }    
+    }
 };
