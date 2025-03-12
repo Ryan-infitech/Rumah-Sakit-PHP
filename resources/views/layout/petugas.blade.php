@@ -43,6 +43,13 @@
                     <span>Pendaftaran Pasien Baru</span>
                 </a>
             </li>
+            
+            <li class="nav-item {{ request()->routeIs('admin.registration') ? 'active' : '' }}">
+                <a class="nav-link" href="{{ route('admin.registration') }}">
+                    <i class="fas fa-fw fa-calendar-plus"></i>
+                    <span>Pendaftaran Poliklinik</span>
+                </a>
+            </li>
 
             <li class="nav-item {{ request()->routeIs('antrian.index') ? 'active' : '' }}">
                 <a class="nav-link" href="{{ route('antrian.index') }}">

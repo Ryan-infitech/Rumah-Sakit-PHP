@@ -10,6 +10,7 @@ use App\Models\RiwayatKunjungan;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class PetugasController extends Controller
 {
@@ -208,11 +209,32 @@ class PetugasController extends Controller
             $waktuSelesai = $antrian->waktu_selesai;
             $durasiPelayanan = $waktuMulai->diffInMinutes($waktuSelesai);
             
+            // Make sure we have values for the poliklinik_id and dokter_id
+            $jadwal = $antrian->jadwalpoliklinik;
+            $poliklinik_id = null;
+            if ($jadwal && $jadwal->poliklinik) {
+                $poliklinik_id = $jadwal->poliklinik_id;
+            } elseif ($antrian->dokter && $antrian->dokter->poliklinik) {
+                $poliklinik_id = $antrian->dokter->poliklinik_id;
+            }
+            
+            // Ensure dokter_id is properly set
+            $dokter_id = $antrian->dokter_id;
+            
+            // Log debugging information
+            Log::info('Completing appointment', [
+                'antrian_id' => $antrian->id,
+                'pasien_id' => $antrian->id_pasien,
+                'dokter_id' => $dokter_id,
+                'poliklinik_id' => $poliklinik_id
+            ]);
+            
+            // Create the visit record with all necessary data
             RiwayatKunjungan::create([
                 'antrian_id' => $antrian->id,
                 'pasien_id' => $antrian->id_pasien,
-                'dokter_id' => $antrian->dokter_id,
-                'poliklinik_id' => $antrian->jadwalpoliklinik ? $antrian->jadwalpoliklinik->poliklinik_id : null,
+                'dokter_id' => $dokter_id,
+                'poliklinik_id' => $poliklinik_id,
                 'kode_kunjungan' => RiwayatKunjungan::generateKodeKunjungan(),
                 'no_antrian' => $antrian->no_antrian,
                 'nama_pasien' => $antrian->nama_pasien,
@@ -223,7 +245,8 @@ class PetugasController extends Controller
                 'waktu_selesai' => $waktuSelesai,
                 'durasi_pelayanan' => $durasiPelayanan,
                 'status' => 'dilayani',
-                'penjamin' => $antrian->penjamin
+                'penjamin' => $antrian->penjamin,
+                'catatan' => null // Add a default empty value for catatan
             ]);
             
             DB::commit();
@@ -231,6 +254,10 @@ class PetugasController extends Controller
             return redirect()->back()->with('success', 'Pasien telah selesai dilayani dan riwayat kunjungan telah dicatat');
         } catch (\Exception $e) {
             DB::rollBack();
+            Log::error('Failed to complete appointment', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
             return redirect()->back()->with('error', 'Gagal menyelesaikan antrian: ' . $e->getMessage());
         }
     }
@@ -301,3 +328,4 @@ class PetugasController extends Controller
         //
     }
 }
+

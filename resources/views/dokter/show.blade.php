@@ -67,7 +67,7 @@
                         <div class="review-item mb-4 pb-4 border-bottom">
                             <div class="d-flex justify-content-between align-items-center">
                                 <div>
-                                    <strong>{{ $rating->user->nama }}</strong>
+                                    <strong>{{ $rating->user->nama_user ?? 'Pasien' }}</strong>
                                     <div class="small text-muted">{{ $rating->created_at->format('d M Y, H:i') }}</div>
                                 </div>
                                 <div class="ratings">
@@ -78,12 +78,13 @@
                                             <i class="far fa-star text-warning"></i>
                                         @endif
                                     @endfor
+                                    <span class="ml-1">({{ $rating->rating }})</span>
                                 </div>
                             </div>
                             
-                            @if($rating->review)
+                            @if($rating->comment)
                                 <div class="review-text mt-2">
-                                    {{ $rating->review }}
+                                    {{ $rating->comment }}
                                 </div>
                             @endif
                         </div>

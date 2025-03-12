@@ -22,11 +22,14 @@ class DokterController extends Controller
         // Get all doctors with their poliklinik relationship
         $dokter = Dokter::with('poliklinik')->latest()->get();
         
-        // Get average ratings for all doctors
-        $dokterRatings = Rating::select('dokter_id', DB::raw('AVG(rating) as average_rating'))
+        // Calculate average ratings for all doctors using efficient query
+        $dokterRatings = Rating::select('dokter_id', DB::raw('ROUND(AVG(rating), 1) as average_rating'))
             ->groupBy('dokter_id')
             ->pluck('average_rating', 'dokter_id')
             ->toArray();
+        
+        // Log the ratings for debugging
+        Log::info('Doctor ratings:', $dokterRatings);
         
         return view('dokter.index', [
             'dokter' => $dokter,
@@ -96,11 +99,23 @@ class DokterController extends Controller
         // Get average rating for this doctor
         $averageRating = Rating::where('dokter_id', $id)->avg('rating') ?: 0;
         
+        // Log for debugging
+        Log::info('Doctor average rating', [
+            'dokter_id' => $id, 
+            'averageRating' => $averageRating,
+            'rating_count' => Rating::where('dokter_id', $id)->count()
+        ]);
+        
         // Get all ratings for this doctor with user information
         $ratings = Rating::with('user')
             ->where('dokter_id', $id)
             ->latest()
             ->get();
+        
+        // Use the review column directly for displaying comments
+        $ratings->each(function($rating) {
+            $rating->comment = $rating->review;
+        });
         
         return view('dokter.show', compact('dokter', 'averageRating', 'ratings'));
     }

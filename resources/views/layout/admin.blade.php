@@ -70,6 +70,14 @@
                     <span>Manajemen User</span>
                 </a>
             </li>
+
+                        <!-- Nav Item - Patient Data -->
+            <li class="nav-item {{ request()->routeIs('pasien.index') ? 'active' : '' }}">
+                <a class="nav-link" href="{{ route('pasien.index') }}">
+                    <i class="fas fa-fw fa-hospital-user"></i>
+                    <span>Data Pasien</span>
+                </a>
+            </li>
             
             <!-- Nav Item - Clinics & Doctors -->
             <li class="nav-item {{ request()->routeIs('poliklinik.*') || request()->routeIs('dokter.*') || request()->routeIs('jadwalpoliklinik.*') ? 'active' : '' }}">
@@ -83,16 +91,9 @@
                         <a class="collapse-item {{ request()->routeIs('poliklinik.*') ? 'active' : '' }}" href="{{ route('poliklinik.index') }}">Poliklinik</a>
                         <a class="collapse-item {{ request()->routeIs('dokter.*') ? 'active' : '' }}" href="{{ route('dokter.index') }}">Dokter</a>
                         <a class="collapse-item {{ request()->routeIs('jadwalpoliklinik.*') ? 'active' : '' }}" href="{{ route('jadwalpoliklinik.index') }}">Jadwal Poliklinik</a>
+                        <a class="collapse-item {{ request()->routeIs('admin.registration') ? 'active' : '' }}" href="{{ route('admin.registration') }}">Pendaftaran Pasien</a>
                     </div>
                 </div>
-            </li>
-            
-            <!-- Nav Item - Patient Data -->
-            <li class="nav-item {{ request()->routeIs('pasien.index') ? 'active' : '' }}">
-                <a class="nav-link" href="{{ route('pasien.index') }}">
-                    <i class="fas fa-fw fa-hospital-user"></i>
-                    <span>Data Pasien</span>
-                </a>
             </li>
             
             <!-- Divider -->

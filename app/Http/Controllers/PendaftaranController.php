@@ -43,22 +43,74 @@ class PendaftaranController extends Controller
                         
         return view('pendaftaran.index', compact('today', 'tomorrow', 'jadwalHariIni', 'jadwalBesok', 'dokterRatings'));
     }
+    
+    public function adminRegistration()
+    {
+        $today = Carbon::today();
+        $now = Carbon::now()->setTimezone('Asia/Jakarta');
+        
+        // Fetch available schedules for today and future dates (not just tomorrow)
+        $jadwalHariIni = JadwalPoliklinik::with('dokter', 'dokter.poliklinik')
+                        ->whereDate('tanggal_praktek', $today)
+                        ->where('jam_selesai', '>', $now->format('H:i'))
+                        ->get();
+                        
+        $jadwalMendatang = JadwalPoliklinik::with('dokter', 'dokter.poliklinik')
+                        ->whereDate('tanggal_praktek', '>', $today)
+                        ->orderBy('tanggal_praktek')
+                        ->get();
+        
+        // Get doctor ratings
+        $dokterIds = $jadwalHariIni->pluck('dokter_id')->merge($jadwalMendatang->pluck('dokter_id'))->unique();
+        $dokterRatings = [];
+        
+        foreach ($dokterIds as $dokterId) {
+            $avgRating = Rating::where('dokter_id', $dokterId)->avg('rating');
+            if ($avgRating) {
+                $dokterRatings[$dokterId] = round($avgRating, 1);
+            }
+        }
+                        
+        return view('pendaftaran.admin_registration', compact('today', 'jadwalHariIni', 'jadwalMendatang', 'dokterRatings'));
+    }
 
     public function store(Request $request)
     {
         $user = Auth::user();
         $path = null; // Initialize $path variable
+        $datapasien = null; // Initialize $datapasien for later use
+        $id_pasien = null; // Initialize id_pasien
         
         if ($user->roles == 'admin' || $user->roles == 'petugas') {
+            // Validate admin/petugas input
             $request->validate([
                 'nama_pasien' => 'required|string|max:255',
                 'penjamin' => 'required',
-                'no_telp' => 'nullable|string|max:15',
+                'no_telp' => 'required|string|max:15',
             ]);
             
             $nama_pasien = $request->nama_pasien;
-            $id_pasien = null;
             $no_telp = $request->no_telp;
+            
+            // Check if patient already exists based on name and phone number
+            $datapasien = Datapasien::where('nama_pasien', $nama_pasien)
+                                ->where('no_telp', $no_telp)
+                                ->first();
+            
+            if ($datapasien) {
+                // If patient record exists, use their ID
+                $id_pasien = $datapasien->id;
+            } else {
+                // Create a new patient record
+                $datapasien = new Datapasien();
+                $datapasien->nama_pasien = $nama_pasien;
+                $datapasien->no_telp = $no_telp;
+                $datapasien->email = $no_telp . '@placeholder.com'; // Placeholder email
+                $datapasien->user_id = $user->id; // Use the admin/staff ID temporarily
+                $datapasien->save();
+                
+                $id_pasien = $datapasien->id;
+            }
             
             // If admin/petugas uploads a file
             if ($request->hasFile('scan_surat_rujukan')) {
@@ -66,6 +118,7 @@ class PendaftaranController extends Controller
                 $path = $file->store('public/surat_rujukan');
             }
         } else {
+            // Patient registration logic
             $datapasien = Datapasien::where('user_id', $user->id)->first();
             
             if (!$datapasien) {
@@ -112,48 +165,67 @@ class PendaftaranController extends Controller
             }
         }
         
+        // Get jadwalpoliklinik data first to check availability
+        $jadwalpoliklinik = JadwalPoliklinik::with('dokter', 'poliklinik')->findOrFail($request->jadwalpoliklinik_id);
+        if ($jadwalpoliklinik->jumlah <= 0) {
+            return back()->withErrors(['msg' => 'Kuota pendaftaran habis!']);
+        }
+        
+        // Decrement quota
+        $jadwalpoliklinik->decrement('jumlah');
+        
+        // Create pendaftaran record
         $pendaftaran = new Pendaftaran();
         $pendaftaran->jadwalpoliklinik_id = $request->jadwalpoliklinik_id;
         $pendaftaran->penjamin = $request->penjamin;
         $pendaftaran->nama_pasien = $nama_pasien;
         $pendaftaran->id_pasien = $id_pasien;
         $pendaftaran->scan_surat_rujukan = $path;
-        
-        $jadwalpoliklinik = JadwalPoliklinik::findOrFail($request->jadwalpoliklinik_id);
-        if ($jadwalpoliklinik->jumlah <= 0) {
-            return back()->withErrors(['msg' => 'Kuota pendaftaran habis!']);
-        }
-        $jadwalpoliklinik->decrement('jumlah');
-        
         $pendaftaran->save();
         
+        // Generate queue number
         $no_antrian = Antrian::where('jadwalpoliklinik_id', $jadwalpoliklinik->id)->count() + 1;
         $kode_antrian = $jadwalpoliklinik->poliklinik_id . $jadwalpoliklinik->dokter_id . $jadwalpoliklinik->id . $pendaftaran->id . $user->id . $no_antrian;
         
         // Get the kode value from jadwalpoliklinik table as kode_jadwalpoliklinik
-        $kode_jadwal = isset($jadwalpoliklinik->kode) ? $jadwalpoliklinik->kode : 'JP' . $jadwalpoliklinik->id;
+        $kode_jadwal = $jadwalpoliklinik->kode ?? 'JP' . $jadwalpoliklinik->id;
         
-        $antrian = Antrian::create([
+        // Create antrian data with proper BPJS/insurance info
+        $antrianData = [
             'kode_antrian' => $kode_antrian,
-            'kode_jadwalpoliklinik' => $kode_jadwal, // Use the generated code
+            'kode_jadwalpoliklinik' => $kode_jadwal,
             'no_antrian' => $no_antrian,
             'nama_pasien' => $nama_pasien,
             'no_telp' => $no_telp,
             'jadwalpoliklinik_id' => $jadwalpoliklinik->id,
             'id_pasien' => $id_pasien,
             'nama_dokter' => $jadwalpoliklinik->dokter->nama_dokter,
-            'dokter_id' => $jadwalpoliklinik->dokter_id, // Add dokter_id
-            'poliklinik' => $jadwalpoliklinik->poliklinik->nama_poliklinik,
+            'dokter_id' => $jadwalpoliklinik->dokter_id,
+            'poliklinik' => $jadwalpoliklinik->dokter->poliklinik->nama_poliklinik,
             'penjamin' => $request->penjamin,
-            'no_bpjs' => ($request->penjamin == 'BPJS' && isset($datapasien)) ? $datapasien->no_kbpjs : null,
-            'scan_kbpjs' => ($request->penjamin == 'BPJS' && isset($datapasien)) ? $datapasien->scan_kbpjs : null,
-            'scan_kasuransi' => ($request->penjamin == 'Asuransi' && isset($datapasien)) ? $datapasien->scan_kasuransi : null,
             'tanggal_berobat' => $jadwalpoliklinik->tanggal_praktek,
             'tanggal_reservasi' => now(),
             'user_id' => Auth::id(),
             'scan_surat_rujukan' => $path,
-        ]);
+        ];
         
-        return redirect()->route('Pendaftaran.index')->with('success', 'Pendaftaran berhasil!');
+        // Add BPJS/insurance data if available from patient record
+        if ($datapasien) {
+            if ($request->penjamin == 'BPJS') {
+                $antrianData['no_bpjs'] = $datapasien->no_kbpjs;
+                $antrianData['scan_kbpjs'] = $datapasien->scan_kbpjs;
+            } elseif ($request->penjamin == 'Asuransi') {
+                $antrianData['scan_kasuransi'] = $datapasien->scan_kasuransi;
+            }
+        }
+        
+        // Create the antrian record
+        $antrian = Antrian::create($antrianData);
+        
+        // Determine redirect route based on user role
+        $redirectRoute = ($user->roles == 'admin' || $user->roles == 'petugas') ? 
+            'admin.registration' : 'Pendaftaran.index';
+            
+        return redirect()->route($redirectRoute)->with('success', 'Pendaftaran berhasil!');
     }
 }

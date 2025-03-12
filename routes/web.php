@@ -108,10 +108,19 @@ Route::middleware(['auth'])->group(function() {
         
         // Add patient queue history page
         Route::get('/pasien/riwayat-antrian', [PasienController::class, 'riwayatAntrian'])->name('pasien.riwayat-antrian');
+        
+        // Jadwal Periksa and Riwayat Periksa routes
+        Route::get('/jadwal-periksa', [PasienController::class, 'jadwalPeriksa'])->name('pasien.jadwal-periksa');
+        Route::get('/riwayat-periksa', [PasienController::class, 'riwayatPeriksa'])->name('pasien.riwayat-periksa');
     });
     
     // Store route - accessible by all authenticated users
     Route::post('/Pendaftaran/store', [PendaftaranController::class, 'store'])->name('Pendaftaran.store');
+    
+    // Admin registration page
+    Route::middleware(['role:admin,petugas'])->group(function() {
+        Route::get('/admin/registration', [PendaftaranController::class, 'adminRegistration'])->name('admin.registration');
+    });
     
     // Laporan Pendaftaran - accessible by admin and petugas
     Route::middleware(['role:admin,petugas'])->group(function() {
