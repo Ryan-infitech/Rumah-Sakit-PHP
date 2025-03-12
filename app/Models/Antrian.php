@@ -60,6 +60,19 @@ class Antrian extends Model
    {
        return $this->hasOne(RiwayatKunjungan::class);
    }
+
+   public function rating()
+   {
+       return $this->hasOne(Rating::class, 'antrian_id');
+   }
+   
+   /**
+    * Check if this appointment has been rated
+    */
+   public function getRatedAttribute()
+   {
+       return $this->rating()->exists();
+   }
    
    protected $casts = [
        'tanggal_berobat' => 'date',

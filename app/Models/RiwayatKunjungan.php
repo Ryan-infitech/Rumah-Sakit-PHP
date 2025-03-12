@@ -57,11 +57,19 @@ class RiwayatKunjungan extends Model
         return $this->belongsTo(Poliklinik::class);
     }
     
-    // Generate a unique code for the visit
+    /**
+     * Generate a unique visit code
+     * 
+     * @return string
+     */
     public static function generateKodeKunjungan()
     {
+        $prefix = 'VIS';
         $date = now()->format('Ymd');
-        $randomString = strtoupper(substr(uniqid(), -4));
-        return "VISIT-{$date}-{$randomString}";
+        $lastRecord = self::orderBy('id', 'desc')->first();
+        $lastNumber = $lastRecord ? intval(substr($lastRecord->kode_kunjungan, -4)) : 0;
+        $newNumber = str_pad($lastNumber + 1, 4, '0', STR_PAD_LEFT);
+        
+        return $prefix . $date . $newNumber;
     }
 }
