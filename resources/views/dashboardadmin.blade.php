@@ -165,59 +165,111 @@
                     </div>
                 </div>
                 <div class="card-body">
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <div class="chart-container" style="position: relative; height:200px; width:100%">
-                                <canvas id="cpuUsageChart"></canvas>
+                    <div class="row mb-4">
+                        <div class="col-md-3 mb-4 mb-md-0">
+                            <div class="card border-left-primary h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                                CPU Usage</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800" id="cpuLoadDisplay">0%</div>
+                                            <div class="sparkline-container mt-2">
+                                                <canvas id="cpuSparkline" height="30"></canvas>
+                                            </div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <i class="fas fa-microchip fa-2x text-gray-300"></i>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                        <div class="col-md-6">
-                            <div class="chart-container" style="position: relative; height:200px; width:100%">
-                                <canvas id="memoryUsageChart"></canvas>
+                        <div class="col-md-3 mb-4 mb-md-0">
+                            <div class="card border-left-success h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                                Memory Usage</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800" id="memoryUsageDisplay">0 MB</div>
+                                            <div class="sparkline-container mt-2">
+                                                <canvas id="memorySparkline" height="30"></canvas>
+                                            </div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <i class="fas fa-memory fa-2x text-gray-300"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 mb-4 mb-md-0">
+                            <div class="card border-left-info h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                                DB Queries</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800" id="dbQueriesDisplay">0</div>
+                                            <div class="sparkline-container mt-2">
+                                                <canvas id="dbQueriesSparkline" height="30"></canvas>
+                                            </div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <i class="fas fa-database fa-2x text-gray-300"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card border-left-warning h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                                Active Users</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800" id="activeUsersDisplay">0</div>
+                                            <div class="sparkline-container mt-2">
+                                                <canvas id="activeUsersSparkline" height="30"></canvas>
+                                            </div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <i class="fas fa-users fa-2x text-gray-300"></i>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="chart-container" style="position: relative; height:200px; width:100%">
-                                <canvas id="dbQueriesChart"></canvas>
-                            </div>
+                    
+                    <!-- System Information Card in Right Column -->
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">Informasi Sistem</h6>
                         </div>
-                        <div class="col-md-6">
-                            <div class="chart-container" style="position: relative; height:200px; width:100%">
-                                <canvas id="activeUsersChart"></canvas>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row mt-3">
-                        <div class="col-12">
+                        <div class="card-body p-0">
                             <div class="table-responsive">
-                                <table class="table table-sm table-bordered">
-                                    <thead>
-                                        <tr>
-                                            <th>Metrik</th>
-                                            <th>Nilai</th>
-                                            <th>Status</th>
-                                        </tr>
-                                    </thead>
+                                <table class="table table-sm table-bordered m-0">
                                     <tbody id="systemMetricsBody">
                                         <tr>
-                                            <td>Waktu Uptime Server</td>
+                                            <td><i class="fas fa-server fa-fw text-primary mr-1"></i> Waktu Uptime Server</td>
                                             <td id="serverUptime">Loading...</td>
                                             <td><span class="badge badge-success">Normal</span></td>
                                         </tr>
                                         <tr>
-                                            <td>Database Connections</td>
+                                            <td><i class="fas fa-plug fa-fw text-info mr-1"></i> Database Connections</td>
                                             <td id="dbConnections">Loading...</td>
                                             <td id="dbConnectionStatus"><span class="badge badge-success">Normal</span></td>
                                         </tr>
                                         <tr>
-                                            <td>PHP Version</td>
+                                            <td><i class="fas fa-code fa-fw text-success mr-1"></i> PHP Version</td>
                                             <td>{{ phpversion() }}</td>
                                             <td><span class="badge badge-success">Compatible</span></td>
                                         </tr>
                                         <tr>
-                                            <td>Laravel Version</td>
+                                            <td><i class="fas fa-laptop-code fa-fw text-warning mr-1"></i> Laravel Version</td>
                                             <td>{{ app()->version() }}</td>
                                             <td><span class="badge badge-success">Supported</span></td>
                                         </tr>
@@ -228,6 +280,7 @@
                     </div>
                 </div>
             </div>
+
         </div>
 
         <!-- Quick Access & System Info -->
@@ -345,6 +398,8 @@
 @push('scripts')
 <script>
     $(document).ready(function() {
+        $('#cpuLoad').text('Loading...');
+        $('#memoryUsage').text('Loading...');
         // Update clock every second
         setInterval(function() {
             var date = new Date();
@@ -362,100 +417,118 @@
             "responsive": true
         });
 
-        // Initialize charts
-        const cpuUsageCtx = document.getElementById('cpuUsageChart').getContext('2d');
-        const memoryUsageCtx = document.getElementById('memoryUsageChart').getContext('2d');
-        const dbQueriesCtx = document.getElementById('dbQueriesChart').getContext('2d');
-        const activeUsersCtx = document.getElementById('activeUsersChart').getContext('2d');
+        // Initialize sparkline charts
+        const cpuSparklineCtx = document.getElementById('cpuSparkline').getContext('2d');
+        const memorySparklineCtx = document.getElementById('memorySparkline').getContext('2d');
+        const dbQueriesSparklineCtx = document.getElementById('dbQueriesSparkline').getContext('2d');
+        const activeUsersSparklineCtx = document.getElementById('activeUsersSparkline').getContext('2d');
 
-        // Chart data
-        const cpuData = {
-            labels: Array(10).fill(''),
+        // Sparkline data (smaller datasets for the info cards)
+        const cpuSparklineData = {
+            labels: Array(6).fill(''),
             datasets: [{
-                label: 'CPU Usage %',
-                borderColor: 'rgb(75, 192, 192)',
-                tension: 0.1,
-                fill: false,
-                data: Array(10).fill(0)
+                label: 'CPU',
+                borderColor: '#4e73df',
+                backgroundColor: 'rgba(78, 115, 223, 0.1)',
+                borderWidth: 1.5,
+                pointRadius: 0,
+                tension: 0.4,
+                fill: true,
+                data: Array(6).fill(0)
             }]
         };
 
-        const memoryData = {
-            labels: Array(10).fill(''),
+        const memorySparklineData = {
+            labels: Array(6).fill(''),
             datasets: [{
-                label: 'Memory Usage (MB)',
-                borderColor: 'rgb(255, 99, 132)',
-                tension: 0.1,
-                fill: false,
-                data: Array(10).fill(0)
+                label: 'Memory',
+                borderColor: '#1cc88a',
+                backgroundColor: 'rgba(28, 200, 138, 0.1)',
+                borderWidth: 1.5,
+                pointRadius: 0,
+                tension: 0.4,
+                fill: true,
+                data: Array(6).fill(0)
             }]
         };
 
-        const dbQueriesData = {
-            labels: Array(10).fill(''),
+        const dbQueriesSparklineData = {
+            labels: Array(6).fill(''),
             datasets: [{
-                label: 'DB Queries (per 5s)',
-                borderColor: 'rgb(54, 162, 235)',
-                tension: 0.1,
-                fill: false,
-                data: Array(10).fill(0)
+                label: 'Queries',
+                borderColor: '#36b9cc',
+                backgroundColor: 'rgba(54, 185, 204, 0.1)',
+                borderWidth: 1.5,
+                pointRadius: 0,
+                tension: 0.4,
+                fill: true,
+                data: Array(6).fill(0)
             }]
         };
 
-        const activeUsersData = {
-            labels: Array(10).fill(''),
+        const activeUsersSparklineData = {
+            labels: Array(6).fill(''),
             datasets: [{
-                label: 'Active Users',
-                borderColor: 'rgb(153, 102, 255)',
-                tension: 0.1,
-                fill: false,
-                data: Array(10).fill(0)
+                label: 'Users',
+                borderColor: '#f6c23e',
+                backgroundColor: 'rgba(246, 194, 62, 0.1)',
+                borderWidth: 1.5,
+                pointRadius: 0,
+                tension: 0.4,
+                fill: true,
+                data: Array(6).fill(0)
             }]
         };
 
-        // Chart options
-        const chartOptions = {
-            responsive: true,
+        // Sparkline options
+        const sparklineOptions = {
             maintainAspectRatio: false,
+            responsive: true,
+            plugins: {
+                legend: {
+                    display: false,
+                },
+                tooltip: {
+                    enabled: false
+                }
+            },
             scales: {
+                x: {
+                    display: false
+                },
                 y: {
+                    display: false,
                     beginAtZero: true
                 }
             },
             animation: {
                 duration: 0
-            },
-            plugins: {
-                legend: {
-                    display: true,
-                    position: 'top'
-                }
             }
         };
 
-        // Create charts
-        const cpuChart = new Chart(cpuUsageCtx, {
+        // Create sparkline charts
+        const cpuSparkline = new Chart(cpuSparklineCtx, {
             type: 'line',
-            data: cpuData,
-            options: chartOptions
+            data: cpuSparklineData,
+            options: sparklineOptions
         });
 
-        const memoryChart = new Chart(memoryUsageCtx, {
+        const memorySparkline = new Chart(memorySparklineCtx, {
             type: 'line',
-            data: memoryData,
-            options: chartOptions
+            data: memorySparklineData,
+            options: sparklineOptions
         });
 
-        const dbQueriesChart = new Chart(dbQueriesCtx, {
+        const dbQueriesSparkline = new Chart(dbQueriesSparklineCtx, {
             type: 'line',
-            data: dbQueriesData,
-            options: chartOptions
+            data: dbQueriesSparklineData,
+            options: sparklineOptions
         });
 
-        const activeUsersChart = new Chart(activeUsersCtx, {
+        const activeUsersSparkline = new Chart(activeUsersSparklineCtx, {
             type: 'line',
-            data: activeUsersData,
-            options: chartOptions
+            data: activeUsersSparklineData,
+            options: sparklineOptions
         });
 
         // Update interval in seconds
@@ -499,13 +572,21 @@
                 url: '{{ route("admin.system-metrics") }}',
                 method: 'GET',
                 success: function(response) {
-                    // Update charts
-                    addDataToChart(cpuChart, response.cpu_usage);
-                    addDataToChart(memoryChart, response.memory_usage);
-                    addDataToChart(dbQueriesChart, response.db_queries);
-                    addDataToChart(activeUsersChart, response.active_users);
+                    console.log('Received metrics:', response);
                     
-                    // Update metrics display
+                    // Update sparkline charts
+                    addDataToSparkline(cpuSparkline, response.cpu_usage);
+                    addDataToSparkline(memorySparkline, response.memory_usage);
+                    addDataToSparkline(dbQueriesSparkline, response.db_queries);
+                    addDataToSparkline(activeUsersSparkline, response.active_users);
+                    
+                    // Update metrics display with trend indicators
+                    updateMetricDisplay('cpuLoadDisplay', response.cpu_usage, '%', getCpuStatusClass(response.cpu_usage));
+                    updateMetricDisplay('memoryUsageDisplay', response.memory_usage, ' MB', getMemoryStatusClass(response.memory_usage));
+                    updateMetricDisplay('dbQueriesDisplay', response.db_queries, '', getDbQueriesStatusClass(response.db_queries));
+                    updateMetricDisplay('activeUsersDisplay', response.active_users, '', null);
+                    
+                    // Update metrics in system info section
                     $('#cpuLoad').text(response.cpu_usage + '%');
                     $('#memoryUsage').text(response.memory_usage + ' MB');
                     $('#serverUptime').text(response.uptime);
@@ -521,11 +602,46 @@
                     // Update active users list with the accurate data
                     updateActiveUsersList(response.active_user_details);
                 },
-                error: function() {
-                    console.error('Failed to fetch system metrics');
+                error: function(xhr, status, error) {
+                    console.error('Error fetching metrics:', status, error);
+                    console.error('Response:', xhr.responseText);
                     $('#serverStatus').removeClass('badge-success').addClass('badge-danger').text('Error');
+                    console.log('Fetching metrics from:', '{{ route("admin.system-metrics") }}');
                 }
             });
+        }
+        
+        // Function to determine CPU status class
+        function getCpuStatusClass(cpuUsage) {
+            if (cpuUsage >= 80) return 'danger';
+            if (cpuUsage >= 60) return 'warning';
+            return 'success';
+        }
+        
+        // Function to determine Memory status class
+        function getMemoryStatusClass(memoryUsage) {
+            if (memoryUsage >= 400) return 'danger';
+            if (memoryUsage >= 300) return 'warning';
+            return 'success';
+        }
+        
+        // Function to determine DB Queries status class
+        function getDbQueriesStatusClass(queries) {
+            if (queries >= 20) return 'danger';
+            if (queries >= 15) return 'warning';
+            return 'success';
+        }
+        
+        // Function to update metric display with trend indicator
+        function updateMetricDisplay(elementId, value, unit, statusClass) {
+            const element = $(`#${elementId}`);
+            let html = value + unit;
+            
+            if (statusClass) {
+                html += ` <i class="fas fa-circle text-${statusClass} fa-sm"></i>`;
+            }
+            
+            element.html(html);
         }
         
         // Function to update DB connection status
@@ -540,8 +656,8 @@
             }
         }
         
-        // Function to add data to chart
-        function addDataToChart(chart, newData) {
+        // Function to add data to sparkline chart
+        function addDataToSparkline(chart, newData) {
             chart.data.datasets[0].data.shift();
             chart.data.datasets[0].data.push(newData);
             chart.update();
@@ -576,4 +692,56 @@
         });
     });
 </script>
+
+<style>
+    .chart-card {
+        background-color: #fff;
+        border-radius: 5px;
+        padding: 10px;
+        box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+    }
+    
+    .chart-title {
+        font-size: 0.8rem;
+        font-weight: bold;
+        text-align: center;
+        margin-bottom: 8px;
+        color: #4e73df;
+    }
+    
+    .chart-container {
+        background-color: #f8f9fc;
+        border-radius: 4px;
+        padding: 8px;
+    }
+    
+    .sparkline-container {
+        height: 30px;
+        width: 100%;
+        position: relative;
+    }
+    
+    /* Add a glow effect to metric cards on hover */
+    .card.border-left-primary:hover,
+    .card.border-left-success:hover,
+    .card.border-left-info:hover,
+    .card.border-left-warning:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 0.5rem 1.5rem 0 rgba(58, 59, 69, 0.15);
+        transition: all 0.3s ease;
+    }
+    
+    /* Status indicators */
+    .text-danger {
+        color: #e74a3b !important;
+    }
+    
+    .text-warning {
+        color: #f6c23e !important;
+    }
+    
+    .text-success {
+        color: #1cc88a !important;
+    }
+</style>
 @endpush
