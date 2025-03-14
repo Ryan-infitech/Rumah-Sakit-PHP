@@ -9,7 +9,7 @@ use App\Models\dokter;
 use App\Models\Rating;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Datapasien;
-
+use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 
 class PendaftaranController extends Controller
@@ -19,29 +19,64 @@ class PendaftaranController extends Controller
         $today = Carbon::today();
         $now = Carbon::now()->setTimezone('Asia/Jakarta');
         
-        // Fetch available schedules
-        $jadwalHariIni = JadwalPoliklinik::with('dokter', 'dokter.poliklinik')
-                        ->whereDate('tanggal_praktek', $today)
-                        ->where('jam_selesai', '>', $now->format('H:i'))
-                        ->get();
-                        
+        // Optimize query by selecting only needed fields and eager loading relationships
+        $jadwalHariIni = JadwalPoliklinik::select('id', 'dokter_id', 'tanggal_praktek', 'jam_mulai', 'jam_selesai', 'jumlah')
+            ->with([
+                'dokter:id,nama_dokter,poliklinik_id,foto_dokter', 
+                'dokter.poliklinik:id,nama_poliklinik'
+            ])
+            ->whereDate('tanggal_praktek', $today)
+            ->where('jam_selesai', '>', $now->format('H:i'))
+            ->where('jumlah', '>', 0)
+            ->get();
+            
         $tomorrow = Carbon::tomorrow();
-        $jadwalBesok = JadwalPoliklinik::with('dokter', 'dokter.poliklinik')
-                        ->whereDate('tanggal_praktek', $tomorrow)
-                        ->get();
+        $jadwalBesok = JadwalPoliklinik::select('id', 'dokter_id', 'tanggal_praktek', 'jam_mulai', 'jam_selesai', 'jumlah')
+            ->with([
+                'dokter:id,nama_dokter,poliklinik_id,foto_dokter', 
+                'dokter.poliklinik:id,nama_poliklinik'
+            ])
+            ->whereDate('tanggal_praktek', $tomorrow)
+            ->where('jumlah', '>', 0)
+            ->get();
+            
+        // Add query for future schedules (beyond tomorrow) - Limited to 30 days from now
+        $futureDate = Carbon::tomorrow()->addDay();
+        $maxDate = Carbon::today()->addDays(30);
+        $jadwalMendatang = JadwalPoliklinik::select('id', 'dokter_id', 'tanggal_praktek', 'jam_mulai', 'jam_selesai', 'jumlah')
+            ->with([
+                'dokter:id,nama_dokter,poliklinik_id,foto_dokter', 
+                'dokter.poliklinik:id,nama_poliklinik'
+            ])
+            ->whereDate('tanggal_praktek', '>', $tomorrow)
+            ->whereDate('tanggal_praktek', '<=', $maxDate)
+            ->where('jumlah', '>', 0)
+            ->orderBy('tanggal_praktek')
+            ->get();
         
-        // Get doctor ratings
-        $dokterIds = $jadwalHariIni->pluck('dokter_id')->merge($jadwalBesok->pluck('dokter_id'))->unique();
+        // Get doctor ratings more efficiently using a single database query
+        $dokterIds = $jadwalHariIni->pluck('dokter_id')
+            ->concat($jadwalBesok->pluck('dokter_id'))
+            ->concat($jadwalMendatang->pluck('dokter_id'))
+            ->unique()
+            ->values()
+            ->toArray();
+            
         $dokterRatings = [];
         
-        foreach ($dokterIds as $dokterId) {
-            $avgRating = Rating::where('dokter_id', $dokterId)->avg('rating');
-            if ($avgRating) {
-                $dokterRatings[$dokterId] = round($avgRating, 1);
+        if (!empty($dokterIds)) {
+            $ratings = DB::table('ratings')
+                ->select('dokter_id', DB::raw('AVG(rating) as avg_rating'))
+                ->whereIn('dokter_id', $dokterIds)
+                ->groupBy('dokter_id')
+                ->get();
+                
+            foreach ($ratings as $rating) {
+                $dokterRatings[$rating->dokter_id] = round($rating->avg_rating, 1);
             }
         }
                         
-        return view('pendaftaran.index', compact('today', 'tomorrow', 'jadwalHariIni', 'jadwalBesok', 'dokterRatings'));
+        return view('pendaftaran.index', compact('today', 'tomorrow', 'jadwalHariIni', 'jadwalBesok', 'jadwalMendatang', 'dokterRatings'));
     }
     
     public function adminRegistration()
@@ -49,25 +84,47 @@ class PendaftaranController extends Controller
         $today = Carbon::today();
         $now = Carbon::now()->setTimezone('Asia/Jakarta');
         
-        // Fetch available schedules for today and future dates (not just tomorrow)
-        $jadwalHariIni = JadwalPoliklinik::with('dokter', 'dokter.poliklinik')
-                        ->whereDate('tanggal_praktek', $today)
-                        ->where('jam_selesai', '>', $now->format('H:i'))
-                        ->get();
+        // Optimize queries with better eager loading and select only needed fields
+        $jadwalHariIni = JadwalPoliklinik::select('id', 'dokter_id', 'tanggal_praktek', 'jam_mulai', 'jam_selesai', 'jumlah', 'poliklinik_id')
+            ->with([
+                'dokter:id,nama_dokter,poliklinik_id,foto_dokter',
+                'dokter.poliklinik:id,nama_poliklinik'
+            ])
+            ->whereDate('tanggal_praktek', $today)
+            ->where('jam_selesai', '>', $now->format('H:i'))
+            ->where('jumlah', '>', 0)
+            ->get();
                         
-        $jadwalMendatang = JadwalPoliklinik::with('dokter', 'dokter.poliklinik')
-                        ->whereDate('tanggal_praktek', '>', $today)
-                        ->orderBy('tanggal_praktek')
-                        ->get();
+        // Limit future dates to reduce memory usage
+        $jadwalMendatang = JadwalPoliklinik::select('id', 'dokter_id', 'tanggal_praktek', 'jam_mulai', 'jam_selesai', 'jumlah', 'poliklinik_id')
+            ->with([
+                'dokter:id,nama_dokter,poliklinik_id,foto_dokter',
+                'dokter.poliklinik:id,nama_poliklinik'
+            ])
+            ->whereDate('tanggal_praktek', '>', $today)
+            ->where('jumlah', '>', 0)
+            ->orderBy('tanggal_praktek')
+            ->limit(30) // Limit future dates to reduce memory usage
+            ->get();
         
-        // Get doctor ratings
-        $dokterIds = $jadwalHariIni->pluck('dokter_id')->merge($jadwalMendatang->pluck('dokter_id'))->unique();
+        // Efficiently get doctor ratings
+        $dokterIds = $jadwalHariIni->pluck('dokter_id')
+            ->concat($jadwalMendatang->pluck('dokter_id'))
+            ->unique()
+            ->values()
+            ->toArray();
+            
         $dokterRatings = [];
         
-        foreach ($dokterIds as $dokterId) {
-            $avgRating = Rating::where('dokter_id', $dokterId)->avg('rating');
-            if ($avgRating) {
-                $dokterRatings[$dokterId] = round($avgRating, 1);
+        if (!empty($dokterIds)) {
+            $ratings = DB::table('ratings')
+                ->select('dokter_id', DB::raw('AVG(rating) as avg_rating'))
+                ->whereIn('dokter_id', $dokterIds)
+                ->groupBy('dokter_id')
+                ->get();
+                
+            foreach ($ratings as $rating) {
+                $dokterRatings[$rating->dokter_id] = round($rating->avg_rating, 1);
             }
         }
                         
@@ -166,7 +223,11 @@ class PendaftaranController extends Controller
         }
         
         // Get jadwalpoliklinik data first to check availability
-        $jadwalpoliklinik = JadwalPoliklinik::with('dokter', 'poliklinik')->findOrFail($request->jadwalpoliklinik_id);
+        $jadwalpoliklinik = JadwalPoliklinik::with(['dokter.poliklinik' => function($query) {
+            $query->select('id', 'nama_poliklinik');
+        }])->select('id', 'dokter_id', 'tanggal_praktek', 'kode', 'poliklinik_id', 'jumlah')
+          ->findOrFail($request->jadwalpoliklinik_id);
+          
         if ($jadwalpoliklinik->jumlah <= 0) {
             return back()->withErrors(['msg' => 'Kuota pendaftaran habis!']);
         }
