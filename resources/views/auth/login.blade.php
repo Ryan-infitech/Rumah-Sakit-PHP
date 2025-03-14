@@ -192,7 +192,7 @@
     <script>
         function togglePassword() {
             var passwordField = document.getElementById("password");
-            var toggleIcon = document.getElementById("toggle-icon");
+            var toggleIcon = document.getElementById("toggle-icon").querySelector("i");
             if (passwordField.type === "password") {
                 passwordField.type = "text";
                 toggleIcon.classList.remove("fa-eye");
